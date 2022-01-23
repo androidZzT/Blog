@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>初识比特币 | ZzT&#39;s Blog</title>
+  <meta name="description" content="什么是比特币？ A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution.  一个纯正的点对点去中心化的加密数字货币">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识比特币">
+<meta property="og:url" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/index.html">
+<meta property="og:site_name" content="ZzT&#39;s Blog">
+<meta property="og:description" content="什么是比特币？ A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution.  一个纯正的点对点去中心化的加密数字货币">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/btc_cover.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/decentralized.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/double_spending.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/tamper.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/anti_tamper.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/asymmetric_encryption.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/digital_signature.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/what_is_block_chain.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/btc_transaction.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/6_confirms.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/51%25_attack.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/mining_healthy.png">
+<meta property="article:published_time" content="2022-01-22T17:01:56.000Z">
+<meta property="article:modified_time" content="2022-01-22T17:06:12.356Z">
+<meta property="article:author" content="ZzT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/btc_cover.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="ZzT&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/androidZzT" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpeg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">ZzT</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Peking, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BlockChain/">BlockChain</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/">Kotlin</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Video/">Video</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%8D%8F%E7%A8%8B/" rel="tag">Kotlin协程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%9F%BA%E7%A1%80/" rel="tag">Kotlin基础</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Video/">Video</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/audio-basic/" class="title">音频开发基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T17:53:41.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/BlockChain/">BlockChain</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/bc-bitcoin-concept/" class="title">初识比特币</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T17:01:56.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/kt-coroutine-create/" class="title">Kotlin 协程的创建过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T16:55:34.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/22/kt-sequence/" class="title">Kotlin Sequence 原理</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T14:01:56.000Z" itemprop="datePublished">2022-01-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/22/kt-receiver/" class="title">Kotlin Lambda 函数中的 Receiver 是什么？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T13:31:48.000Z" itemprop="datePublished">2022-01-22</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%AF%94%E7%89%B9%E5%B8%81%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">什么是比特币？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%8F%91%E6%98%8E%E6%AF%94%E7%89%B9%E5%B8%81%EF%BC%9F"><span class="toc-number">2.</span> <span class="toc-text">为什么要发明比特币？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%AD%E5%BF%83%E5%8C%96%EF%BC%8C%E5%9F%BA%E4%BA%8E%E4%BF%A1%E4%BB%BB%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.1.</span> <span class="toc-text">中心化，基于信任模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8C%E8%8A%B1%E6%94%BB%E5%87%BB%EF%BC%88Double-Spending-Attack"><span class="toc-number">2.2.</span> <span class="toc-text">双花攻击（Double Spending Attack)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AF%94%E7%89%B9%E5%B8%81%E4%B8%AD%E7%9A%84%E5%AF%86%E7%A0%81%E5%AD%A6"><span class="toc-number">3.</span> <span class="toc-text">比特币中的密码学</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95%EF%BC%88Hash-Algorithm"><span class="toc-number">3.1.</span> <span class="toc-text">哈希算法（Hash Algorithm)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AF%94%E7%89%B9%E5%B8%81%E4%BD%BF%E7%94%A8%E7%9A%84%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95"><span class="toc-number">3.2.</span> <span class="toc-text">比特币使用的哈希算法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%8D%E5%8F%AF%E9%80%86%EF%BC%88Hiding%EF%BC%89"><span class="toc-number">3.2.1.</span> <span class="toc-text">不可逆（Hiding）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8A%97%E5%93%88%E5%B8%8C%E7%A2%B0%E6%92%9E%EF%BC%88Collision-istance%EF%BC%89"><span class="toc-number">3.2.2.</span> <span class="toc-text">抗哈希碰撞（Collision .istance）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E5%80%BC%E4%B8%8D%E5%8F%AF%E9%A2%84%E6%B5%8B%EF%BC%88Puzzle-friendly%EF%BC%89"><span class="toc-number">3.2.3.</span> <span class="toc-text">哈希值不可预测（Puzzle friendly）</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%EF%BC%88Digital-Signature%EF%BC%89"><span class="toc-number">3.3.</span> <span class="toc-text">数字签名（Digital Signature）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%EF%BC%9F"><span class="toc-number">3.3.1.</span> <span class="toc-text">什么是非对称加密？</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-3-2%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%EF%BC%9F"><span class="toc-number">3.3.2.</span> <span class="toc-text">3.3.2、什么是数字签名？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%AF%94%E7%89%B9%E5%B8%81%E6%98%AF%E5%A6%82%E4%BD%95%E4%BA%A4%E6%98%93%E7%9A%84%EF%BC%9F"><span class="toc-number">4.</span> <span class="toc-text">四、比特币是如何交易的？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-1%E3%80%81%E5%8C%BA%E5%9D%97%E9%93%BE"><span class="toc-number">4.1.</span> <span class="toc-text">4.1、区块链</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B4%A6%E6%88%B7"><span class="toc-number">4.2.</span> <span class="toc-text">账户</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B2%E6%AD%A2%E5%8F%8C%E8%8A%B1"><span class="toc-number">4.3.</span> <span class="toc-text">防止双花</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%9E%E6%BA%AF%E5%B8%81%E6%BA%90"><span class="toc-number">4.3.1.</span> <span class="toc-text">回溯币源</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AF%94%E7%89%B9%E5%B8%81%E6%8C%96%E7%9F%BF"><span class="toc-number">5.</span> <span class="toc-text">比特币挖矿</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%8C%96%E7%9F%BF%EF%BC%9F"><span class="toc-number">5.1.</span> <span class="toc-text">为什么要挖矿？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8C%96%E7%9F%BF%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-number">5.2.</span> <span class="toc-text">挖矿的过程</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%89%BE%E5%88%B0%E6%9C%80%E9%95%BF%E5%90%88%E6%B3%95%E9%93%BE"><span class="toc-number">5.2.1.</span> <span class="toc-text">找到最长合法链</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8C%96%E7%9F%BF%E8%A7%A3%E8%B0%9C"><span class="toc-number">5.2.2.</span> <span class="toc-text">挖矿解谜</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B9%BF%E6%92%AD"><span class="toc-number">5.2.3.</span> <span class="toc-text">广播</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#6%E6%AC%A1%E4%BA%A4%E6%98%93%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="toc-number">5.2.4.</span> <span class="toc-text">6次交易确认机制</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#51-%E7%AE%97%E5%8A%9B%E6%94%BB%E5%87%BB"><span class="toc-number">5.3.</span> <span class="toc-text">51%算力攻击</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AF%94%E7%89%B9%E5%B8%81%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="toc-number">6.</span> <span class="toc-text">比特币的缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">7.</span> <span class="toc-text">参考</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-bc-bitcoin-concept" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      初识比特币
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/01/23/bc-bitcoin-concept/" class="article-date">
+	  <time datetime="2022-01-22T17:01:56.000Z" itemprop="datePublished">2022-01-23</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/BlockChain/">BlockChain</a>
+  </span>
+
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/23/bc-bitcoin-concept/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <img src="/2022/01/23/bc-bitcoin-concept/btc_cover.png" class="">
+
+<h3 id="什么是比特币？"><a href="#什么是比特币？" class="headerlink" title="什么是比特币？"></a>什么是比特币？</h3><blockquote>
+<p>A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution. </p>
+<p>一个纯正的点对点去中心化的加密数字货币，应能够通过在线支付将币从一方直接发送到另一方，而无需通过任何中心金融机构。</p>
+</blockquote>
+<p>比特币是一种加密货币（crypto-currency），实现自一个自称中本聪（Satoshi Nakamoto）的不明身份的人所发表的一篇论文（<a target="_blank" rel="noopener" href="https://btcpapers.com/">比特币白皮书</a>）</p>
+<p>与其说比特币是一种加密货币，不如说比特币是一种基于 P2P 网络的支付结算系统，这样更易于大家理解其本质。</p>
+<h3 id="为什么要发明比特币？"><a href="#为什么要发明比特币？" class="headerlink" title="为什么要发明比特币？"></a>为什么要发明比特币？</h3><h4 id="中心化，基于信任模型"><a href="#中心化，基于信任模型" class="headerlink" title="中心化，基于信任模型"></a>中心化，基于信任模型</h4><blockquote>
+<p>酒花 App 平台买了两瓶精酿啤酒<br>一个自称三方供应商的人加我微信，告知我其中一瓶酒没货了，可以加钱换其他的酒<br>虽然这个人微信朋友圈都是精酿啤酒相关的内容，且明确知道我买的哪个酒没货了<br>但是，我内心还是不信任这个人，更信任平台，于是我还是在平台换了一瓶酒</p>
+</blockquote>
+<p>平台就真的值得信任么？<br>假如我下单的时候正好赶上平台服务器宕机，扣款成功了，但没收到货。由于平台系统做的不好，再也找不到那笔订单，不能证明我付过钱，也不能给我发货。<br>这笔交易就没有人能说的清楚了，信任也就不存在了。</p>
+<p><strong>比特币要去解决信任问题</strong></p>
+<blockquote>
+<p>What is needed is an electronic payment system based on cryptographic proof instead of trust, allowing any two willing parties to transact directly with each other without the need for a trusted third party. </p>
+<p>我们真正需要的是一种基于加密算法密码学原理而非基于信任的数字货币支付系统，不需要可信任第三方参与的情况下，允许双方直接进行支付交易</p>
+</blockquote>
+<img src="/2022/01/23/bc-bitcoin-concept/decentralized.png" class="">
+
+
+<h4 id="双花攻击（Double-Spending-Attack"><a href="#双花攻击（Double-Spending-Attack" class="headerlink" title="双花攻击（Double Spending Attack)"></a>双花攻击（Double Spending Attack)</h4><p>「双花」即同一笔钱花了两次或多次。</p>
+<img src="/2022/01/23/bc-bitcoin-concept/double_spending.png" class="">
+
+<p>假设央行发行了一款数字货币，货币在软件中其实就是文件，完全可以复制。<br>假如 A 在转给 B 100 元后，又复制了同一笔钱转给了 C，就是所谓的「双花」，双花攻击只通过验证数字货币的签名是不够的，还需要使用额外的手段。</p>
+<p><strong>比特币要去解决双花问题</strong></p>
+<blockquote>
+<p>We propose a solution to the double-spending problem using a peer-to-peer network</p>
+<p>我们将在本文提出一种新方案，使用点对点去中心化网络去解决这个双花问题</p>
+</blockquote>
+<p>在<strong>比特币交易</strong>小节中，会详细解释比特币是如何解决双花问题的。</p>
+<h3 id="比特币中的密码学"><a href="#比特币中的密码学" class="headerlink" title="比特币中的密码学"></a>比特币中的密码学</h3><h4 id="哈希算法（Hash-Algorithm"><a href="#哈希算法（Hash-Algorithm" class="headerlink" title="哈希算法（Hash Algorithm)"></a>哈希算法（Hash Algorithm)</h4><p>哈希算法是用来做什么的呢？我们先来看一个小故事。</p>
+<p><strong>雍正到底是不是篡位登基的？</strong></p>
+<img src="/2022/01/23/bc-bitcoin-concept/tamper.png" class="" title="篡改">
+
+<p>一直有一个传说称雍正不是康熙真正传位的皇帝，而是有人偷偷修改了遗诏，篡位登基的。  </p>
+<p><strong>假如康熙知道哈希函数</strong>  </p>
+<img src="/2022/01/23/bc-bitcoin-concept/anti_tamper.png" class="" title="利用哈希防篡改">
+
+<p>如果没有哈希函数，在康熙皇帝驾崩后，遗诏是死无对证，只能遗诏写什么，大臣就做什么。</p>
+<p>但有了哈希函数后就变得不一样了，康熙可以在活着的时候就可以提前写好遗诏，并用哈希函数计算出一个哈希串，交予大臣们。<br>大臣们看到哈希串也不能猜出遗诏的内容到底是什么，只能等到遗诏公布的那天，再去计算一次哈希值，看与当初皇帝给的哈希串是否一致，来判断遗诏是否被人篡改了。<br>如果修改了，就不会遵诏行事。</p>
+<p>通过这个小故事，可以简单总结出哈希的两个性质：</p>
+<ol>
+<li>防篡改，输入稍有改动，输出千差万别</li>
+<li>输出结果不可逆，只知道结果不能反推出输入是什么</li>
+</ol>
+<h4 id="比特币使用的哈希算法"><a href="#比特币使用的哈希算法" class="headerlink" title="比特币使用的哈希算法"></a>比特币使用的哈希算法</h4><p>SHA256（Security Hash Algorithm），是一种密码哈希函数（Cryptographic Hash Function）。</p>
+<p>$任意输入 ==&gt; SHA256 ==&gt; 256位哈希$</p>
+<p>在比特币中，利用了SHA256的三个性质</p>
+<ul>
+<li>不可逆（Hiding）</li>
+<li>抗哈希碰撞（Collision .istance）</li>
+<li>哈希值不可预测（Puzzle friendly）</li>
+</ul>
+<h5 id="不可逆（Hiding）"><a href="#不可逆（Hiding）" class="headerlink" title="不可逆（Hiding）"></a>不可逆（Hiding）</h5><p>SHA256的特性：</p>
+<ol>
+<li>输入长度任意</li>
+<li>输出长度固定，256bit</li>
+</ol>
+<p>比如</p>
+<p>$全世界的图书 ==&gt; SHA256 ==&gt; 256 位哈希$</p>
+<p>如果这个过程可逆的话，我们就发现了一种无敌的压缩算法，可以把全世界的图书压成 256 位，再进行存储。</p>
+<h5 id="抗哈希碰撞（Collision-istance）"><a href="#抗哈希碰撞（Collision-istance）" class="headerlink" title="抗哈希碰撞（Collision .istance）"></a>抗哈希碰撞（Collision .istance）</h5><p>根据<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%8A%BD%E5%B1%89%E5%8E%9F%E7%90%86/233776">抽屉原理</a>，输入空间无限，输出空间有限，理论上一定会存在碰撞。</p>
+<p>但是，从长期经验看，没有什么人为的、高效的方式制造碰撞。</p>
+<p>只能通过暴力遍历输入空间的方式来寻找碰撞</p>
+<h5 id="哈希值不可预测（Puzzle-friendly）"><a href="#哈希值不可预测（Puzzle-friendly）" class="headerlink" title="哈希值不可预测（Puzzle friendly）"></a>哈希值不可预测（Puzzle friendly）</h5><p>Puzzle Friendly，直译为谜题友好性，是指事先给定一个哈希串，比如 00000000feacb46d… ，前 8 位都是 0，让你解谜题找到输入是什么。</p>
+<p>由于 SHA256 没有直接办法或通过找到一定规律来猜出输入是什么，只能通过暴力遍历输入空间的方式来找到答案。（其实一点都不友好）</p>
+<p>比如你找到一个输入 a，输出的前 7 位都是 0，感觉再简单调整一下输入就能找到答案了，其实不是的，修改输入后可能得到的答案一个 0 都没有。也就是说你的每一次计算是无记忆性的（Memoryless），只能通过大量地尝试，不断的寻找答案。</p>
+<p>除此之外，找到答案后，其他人验证答案却很简单，只需要把你的答案再用哈希函数计算一次即可。（difficult to solve, but easy to verify）</p>
+<p>比特币<strong>挖矿过程</strong>充分利用了 Puzzle friendly，后面我们会详细说明。</p>
+<h4 id="数字签名（Digital-Signature）"><a href="#数字签名（Digital-Signature）" class="headerlink" title="数字签名（Digital Signature）"></a>数字签名（Digital Signature）</h4><p>了解数字签名之前，需要先对非对称加密有一定认识。</p>
+<h5 id="什么是非对称加密？"><a href="#什么是非对称加密？" class="headerlink" title="什么是非对称加密？"></a>什么是非对称加密？</h5><img src="/2022/01/23/bc-bitcoin-concept/asymmetric_encryption.png" class="" title="非对称加密">
+
+<p>Alice 想通过非对称加密的方式发送一条消息给 Bob，他要怎么做呢？</p>
+<ol>
+<li>Bob 需要先生成公钥私钥对（public key, private key）</li>
+<li>Bob 的公钥是对所有人公开的，所以 Alice 可以拿到 Bob’s public key</li>
+<li>Alice 使用 Bob’s public key 对 Message 加密，并将密文通过网络传输给 Bob</li>
+<li>Bob 接收到密文后，使用自己的私钥 Bob’s private key 解密，得到了 Message</li>
+<li>完成通信</li>
+</ol>
+<p>由于 Bob’s private key 是保存在 Bob 手里的，只要私钥不泄露，就是安全的。</p>
+<h5 id="3-3-2、什么是数字签名？"><a href="#3-3-2、什么是数字签名？" class="headerlink" title="3.3.2、什么是数字签名？"></a>3.3.2、什么是数字签名？</h5><p>还是 Alice 想要给 Bob 发送一条消息，并采用非对称加密的方式，Alice 凭什么相信 Bob 的公钥就是 Bob 的呢？有没有可能被其他人调包了呢？这就需要 Alice 用到数字签名的技术，来验证 Bob 的身份是否真实</p>
+<img src="/2022/01/23/bc-bitcoin-concept/digital_signature.png" class="" title="数字签名">
+
+<ol>
+<li>Bob 用私钥生成数字签名</li>
+<li>Alice 用 Bob 的公钥验证签名</li>
+<li>如果验证通过，则证明公钥一定是 Bob 的，因为签名只能由 Bob 的私钥生成</li>
+</ol>
+<h3 id="四、比特币是如何交易的？"><a href="#四、比特币是如何交易的？" class="headerlink" title="四、比特币是如何交易的？"></a>四、比特币是如何交易的？</h3><h4 id="4-1、区块链"><a href="#4-1、区块链" class="headerlink" title="4.1、区块链"></a>4.1、区块链</h4><p>在比特币系统中，交易是存在区块里的，那么区块链到底是什么呢？</p>
+<img src="/2022/01/23/bc-bitcoin-concept/what_is_block_chain.png" class="">
+
+<ul>
+<li>一个区块是由 block header 和 block body 组成</li>
+<li>block header 中会存储前一个区块头的哈希值</li>
+<li>block body 中会存储具体的交易信息（Transaction 简写为 Tx)</li>
+</ul>
+<p>区块链其实不是区块组成的链表结构，而是通过 (key,value) 数据库实现的。在数据库中，key 是区块头的哈希值，value 是区块内容。</p>
+<h4 id="账户"><a href="#账户" class="headerlink" title="账户"></a>账户</h4><p>在比特币中，账户就是由本机生成的公私钥对</p>
+<ul>
+<li>公钥的哈希值用作转账地址，相当于银行卡号</li>
+<li>私钥相当于银行密码，需要自己妥善保管，一旦丢失是无法找回的</li>
+</ul>
+<h4 id="防止双花"><a href="#防止双花" class="headerlink" title="防止双花"></a>防止双花</h4><p>现实中，A -&gt; B 100元人民币的过程实际是 A 的钱包减少 100元，B 的钱包增加 100元，天然能防止「双花」（除非你把花出去的钱偷回来再花一次）。</p>
+<p>但是，比特币中没有账户系统，不会帮你记录用户的账户中余额还有多少。<br>那么，比特币是如何验证「双花」的呢？</p>
+<h5 id="回溯币源"><a href="#回溯币源" class="headerlink" title="回溯币源"></a>回溯币源</h5><p>比特币的每笔交易由<strong>未花费的输出（UTXO Unspenting Transaction Output），本次交易的输入</strong>拼接而成。每笔交易会去验证 UTXO 是否能支付足量的币，具体可以看下面的例子。</p>
+<img src="/2022/01/23/bc-bitcoin-concept/btc_transaction.png" class="">
+
+<ol>
+<li>coinbase 称作「铸币」交易，是矿工挖出新区块获得的出块奖励，假设是 A 获得了出块奖励的 10 BTC</li>
+<li>A 转给了 B 5 BTC，同时转给了 C 5 BTC，这时系统会去验证 A 有没有能力支付 10 BTC，会向前回溯找到 A BTC 的来源，于是找到了铸币交易，发现有 10 BTC，交易合法</li>
+<li>同理 C 在转给 E 7BTC 时，需要找到之前交易中得到的 5 + 2 BTC</li>
+</ol>
+<p>转账者除了要证明币源，还需要将交易用自己的私钥签名，用于身份验证。</p>
+<h3 id="比特币挖矿"><a href="#比特币挖矿" class="headerlink" title="比特币挖矿"></a>比特币挖矿</h3><h4 id="为什么要挖矿？"><a href="#为什么要挖矿？" class="headerlink" title="为什么要挖矿？"></a>为什么要挖矿？</h4><ol>
+<li><strong>产生比特币</strong>，只有挖出新的区块，才会产生新的比特币。中本聪规定，最初出块奖励为 50 BTC，每隔 4 年出块奖励减半，所以比特币总量大概为 2100 万个</li>
+<li><strong>打包交易</strong>，通过挖出新区块，打包记录新产生的交易</li>
+<li><strong>达成共识</strong>，通过工作量证明（Proof of Work）+ 奖励机制，让系统中的节点达成共识，向好的方向发展</li>
+</ol>
+<h4 id="挖矿的过程"><a href="#挖矿的过程" class="headerlink" title="挖矿的过程"></a>挖矿的过程</h4><blockquote>
+<p>比特币挖矿的过程和实际挖金矿的过程很像：</p>
+<ul>
+<li>金子的总量是有限的，越挖会越少，比特币也是如此</li>
+<li>挖金子需要付出科技成本和体力劳动后才能得到回报，比特币也是需要付出算力、电力成本，才能收获比特币</li>
+</ul>
+</blockquote>
+<p>下面我们来简单了解一下，比特币挖矿的过程是怎样的。</p>
+<h5 id="找到最长合法链"><a href="#找到最长合法链" class="headerlink" title="找到最长合法链"></a>找到最长合法链</h5><p>在比特币中的矿工指的是系统中的全节点，除了挖矿，还要负责维护全量的区块数据</p>
+<p>诚实的矿工会按照最长合法链规则挖矿</p>
+<ul>
+<li><strong>最长</strong>，顾名思义，矿工只沿着系统中最长的链向后挖</li>
+<li><strong>合法</strong>，验证区块信息是否被篡改，区块中记录的所有的交易是否合法。一旦矿工识别当前链不合规，便会马上找到另外的最长合法链，继续挖矿</li>
+</ul>
+<h5 id="挖矿解谜"><a href="#挖矿解谜" class="headerlink" title="挖矿解谜"></a>挖矿解谜</h5><p>简单说，挖矿解谜就是矿工通过暴力哈希运算，找到符合要求的随机数 nonce，满足下面的公式</p>
+<p>$H(header || nonce) &lt;= target$</p>
+<ul>
+<li>target 是一串 256 位的哈希（前 k 位都是 0）</li>
+<li>k 越大，target 越小，挖矿难度越高。就像打靶子一样，k 越大，表示靶子越小，越难命中</li>
+<li>增加算力，会增加挖到矿的概率，但不代表当前区块一定会被算力高的矿工挖到</li>
+</ul>
+<p> 中本聪设计出块时间在10分钟左右，每两周调整一次挖矿难度。比如上两周平均出块时间为 7 分钟，则会增大难度，否则会降低难度。</p>
+<h5 id="广播"><a href="#广播" class="headerlink" title="广播"></a>广播</h5><p>解谜成功后，需要迅速把组装好的区块向相邻节点广播，让自己挖的区块在最长合法链中得到确认，拿到出块奖励和交易手续费。</p>
+<h5 id="6次交易确认机制"><a href="#6次交易确认机制" class="headerlink" title="6次交易确认机制"></a>6次交易确认机制</h5><img src="/2022/01/23/bc-bitcoin-concept/6_confirms.png" class="">
+
+<p>网络是不可靠的，在广播阶段很有可能出现延时。<br>所以交易上链后，并不是马上就生效的，中本聪设计了一个区块上链后需要再等 6 个区块上链后才能被真正确认。</p>
+<p>为什么要这样做？</p>
+<ol>
+<li>防止双花，假如甲、乙矿工同时挖到了新区块，并且广播了出去。其中甲记录 A 转给 B 10BTC，乙记录了 A 转给 C 10BTC，事实上 A 只有 10BTC，如果两个区块都被认可，那就出现了双花。</li>
+<li>为什么是 6 次？中本聪认为，6 个区块大概要花费一个小时才能挖出来，想要再做一次分叉攻击篡改，是需要较大成本的。</li>
+</ol>
+<h4 id="51-算力攻击"><a href="#51-算力攻击" class="headerlink" title="51%算力攻击"></a>51%算力攻击</h4><img src="/2022/01/23/bc-bitcoin-concept/51%25_attack.png" class="">
+
+<p>假设有某个组织拥有了全世界 51% 的算力，并且一直在沿着自己的链挖矿，理论上某个时间点，这个组织所挖的链就会变成最长的，广播后，这条链就会成为最长合法链，那么以前的交易就会被这个组织替换。</p>
+<ul>
+<li>51% 攻击只能将合法的交易替换上链，但是无法偷其他用户的比特币，因为诚实的节点会验证交易的签名。</li>
+<li>51% 攻击是可以发动双花攻击的，由于算力强大，会导致 6 次确认机制失效。比如 A =&gt; B (10BTC) 已经得到确认，其中 A 是攻击者，交易是 A 的签名，发动 51% 攻击后，完全可以修改为 A =&gt; C (10BTC)，C 可以是攻击者的另一个账户。</li>
+<li>51% 只是一个象征性的数字，并不一定算力一定要达到 51 才能攻击，有研究小组表明只要拥有 30% 的全网算力，就足以发动 51% 攻击。（为什么只需要30%？个人猜测是，其他算力之间还存在竞争关系，而这30%是团结一致的）</li>
+</ul>
+<p>曾有矿池（GHash.IO）算力超过了 51%，一度引起比特币价值暴跌，之后很多矿工自觉退出了矿池，来保证系统的安全。</p>
+<img src="/2022/01/23/bc-bitcoin-concept/mining_healthy.png" class="">
+
+<p>比特币系统在「安全性」「高价值」「健康挖矿」三个方面已经形成闭环。<br>算力越高，想发动 51% 攻击就越困难，系统就越安全，随之比特币价格就会越高。<br>使得想要发动攻击的人即使发动了攻击也不一定能赚到什么，还不如用所有算力稳稳挖矿收益高。</p>
+<h3 id="比特币的缺点"><a href="#比特币的缺点" class="headerlink" title="比特币的缺点"></a>比特币的缺点</h3><ol>
+<li>工作量证明机制造成算力、电力的浪费</li>
+<li>出块时间限定平均10分钟左右，一笔交易需要大概需要1小时才能得被系统确认</li>
+<li>比特币私钥丢失之后，是没办法找回的，账户中的比特币永远都取不出来了</li>
+<li>转账写错地址，无法回滚</li>
+</ol>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li>《零基础学区块链》</li>
+<li><a target="_blank" rel="noopener" href="http://zhenxiao.com/blockchain/">北京大学肖臻老师的公开课</a></li>
+<li><a target="_blank" rel="noopener" href="https://btcpapers.com/">比特币白皮书</a></li>
+<li>《图说区块链》</li>
+<li>《图解密码技术》</li>
+</ul>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://zzt.github.io/2022/01/23/bc-bitcoin-concept/" title="初识比特币" target="_blank" rel="external">https://zzt.github.io/2022/01/23/bc-bitcoin-concept/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/androidZzT" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpeg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/androidZzT" target="_blank"><span class="text-dark">ZzT</span><small class="ml-1x">Developer</small></a></h3>
+        <div></div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/01/23/audio-basic/" title="音频开发基础"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/01/23/kt-coroutine-create/" title="Kotlin 协程的创建过程"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2022 ZzT
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>

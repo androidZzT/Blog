@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Kotlin Sequence 原理 | ZzT&#39;s Blog</title>
+  <meta name="description" content="一、Sequence 和 List 的区别以下内容出自官方示例 1. List123456789fun list() &amp;#123;    val words &#x3D; &quot;The quick brown fox jumps over the lazy dog&quot;.split(&quot; &quot;)    val wordList &#x3D; words.toList()    val le">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin Sequence 原理">
+<meta property="og:url" content="https://zzt.github.io/2022/01/22/kt-sequence/index.html">
+<meta property="og:site_name" content="ZzT&#39;s Blog">
+<meta property="og:description" content="一、Sequence 和 List 的区别以下内容出自官方示例 1. List123456789fun list() &amp;#123;    val words &#x3D; &quot;The quick brown fox jumps over the lazy dog&quot;.split(&quot; &quot;)    val wordList &#x3D; words.toList()    val le">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://zzt.github.io/2022/01/22/kt-sequence/list_words.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/22/kt-sequence/sequence_words.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/22/kt-sequence/sequence.png">
+<meta property="og:image" content="https://zzt.github.io/2022/01/22/kt-sequence/sequence.png">
+<meta property="article:published_time" content="2022-01-22T14:01:56.000Z">
+<meta property="article:modified_time" content="2022-01-22T16:47:05.055Z">
+<meta property="article:author" content="ZzT">
+<meta property="article:tag" content="Kotlin基础">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zzt.github.io/2022/01/22/kt-sequence/list_words.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://zzt.github.io/2022/01/22/kt-sequence/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="ZzT&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/androidZzT" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpeg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">ZzT</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Peking, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BlockChain/">BlockChain</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/">Kotlin</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Video/">Video</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%8D%8F%E7%A8%8B/" rel="tag">Kotlin协程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%9F%BA%E7%A1%80/" rel="tag">Kotlin基础</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Video/">Video</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/audio-basic/" class="title">音频开发基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T17:53:41.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/BlockChain/">BlockChain</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/bc-bitcoin-concept/" class="title">初识比特币</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T17:01:56.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/kt-coroutine-create/" class="title">Kotlin 协程的创建过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T16:55:34.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/22/kt-sequence/" class="title">Kotlin Sequence 原理</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T14:01:56.000Z" itemprop="datePublished">2022-01-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/22/kt-receiver/" class="title">Kotlin Lambda 函数中的 Receiver 是什么？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T13:31:48.000Z" itemprop="datePublished">2022-01-22</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Sequence-%E5%92%8C-List-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.</span> <span class="toc-text">一、Sequence 和 List 的区别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-List"><span class="toc-number">1.1.</span> <span class="toc-text">1. List</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Sequence"><span class="toc-number">1.2.</span> <span class="toc-text">2. Sequence</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8C%BA%E5%88%AB"><span class="toc-number">1.3.</span> <span class="toc-text">3. 区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Sequence-%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">二、Sequence 原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#take-amp-toList"><span class="toc-number">2.1.</span> <span class="toc-text">take &amp; toList</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#map"><span class="toc-number">2.2.</span> <span class="toc-text">map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#filter"><span class="toc-number">2.3.</span> <span class="toc-text">filter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#asSequence"><span class="toc-number">2.4.</span> <span class="toc-text">asSequence</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">三、总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88-sequence-%E8%83%BD%E5%81%9A%E5%88%B0%E5%85%88%E5%A3%B0%E6%98%8E%EF%BC%8C%E5%90%8E%E8%A7%A6%E5%8F%91"><span class="toc-number">3.1.</span> <span class="toc-text">1.为什么 sequence 能做到先声明，后触发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%B8%BA%E4%BB%80%E4%B9%88-sequence-%E8%83%BD%E5%AE%9E%E7%8E%B0%E6%B5%81%E6%B0%B4%E7%BA%BF%E7%9A%84%E6%95%88%E6%9E%9C%EF%BC%8C%E9%81%BF%E5%85%8D%E6%93%8D%E4%BD%9C%E6%B5%AA%E8%B4%B9"><span class="toc-number">3.2.</span> <span class="toc-text">2.为什么 sequence 能实现流水线的效果，避免操作浪费</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-kt-sequence" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Kotlin Sequence 原理
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/01/22/kt-sequence/" class="article-date">
+	  <time datetime="2022-01-22T14:01:56.000Z" itemprop="datePublished">2022-01-22</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/Kotlin%E5%9F%BA%E7%A1%80/" rel="tag">Kotlin基础</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/22/kt-sequence/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="一、Sequence-和-List-的区别"><a href="#一、Sequence-和-List-的区别" class="headerlink" title="一、Sequence 和 List 的区别"></a>一、Sequence 和 List 的区别</h2><p>以下内容出自<a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/sequences.html#sequence">官方示例</a></p>
+<h3 id="1-List"><a href="#1-List" class="headerlink" title="1. List"></a>1. List</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">list</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> words = <span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>.split(<span class="string">&quot; &quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> wordList = words.toList()</span><br><span class="line">    <span class="keyword">val</span> lengthList = wordList.filter&#123; println(<span class="string">&quot;filter <span class="variable">$it</span>&quot;</span>); it.length &gt; <span class="number">3</span>&#125;</span><br><span class="line">        .map &#123; println(<span class="string">&quot;map <span class="subst">$&#123;it.length&#125;</span>&quot;</span>); it.length &#125;</span><br><span class="line">        .take(<span class="number">4</span>)</span><br><span class="line">    println(<span class="string">&quot;Lengths of first 4 words longer than 3 chars&quot;</span>)</span><br><span class="line">    println(lengthList)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">filter The</span><br><span class="line">filter quick</span><br><span class="line">filter brown</span><br><span class="line">filter fox</span><br><span class="line">filter jumps</span><br><span class="line">filter over</span><br><span class="line">filter the</span><br><span class="line">filter lazy</span><br><span class="line">filter dog</span><br><span class="line">map 5</span><br><span class="line">map 5</span><br><span class="line">map 5</span><br><span class="line">map 4</span><br><span class="line">map 4</span><br><span class="line">Lengths of first 4 words longer than 3 chars</span><br><span class="line">[5, 5, 5, 4]</span><br></pre></td></tr></table></figure>
+<p>运行过程</p>
+<img src="/2022/01/22/kt-sequence/list_words.png" class="">
+
+<h3 id="2-Sequence"><a href="#2-Sequence" class="headerlink" title="2. Sequence"></a>2. Sequence</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">sequence</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> words = <span class="string">&quot;The quick brown fox jumps over the lazy dog&quot;</span>.split(<span class="string">&quot; &quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> wordSeq = words.asSequence()</span><br><span class="line">    <span class="keyword">val</span> lengthSeq = wordSeq</span><br><span class="line">        .filter &#123;</span><br><span class="line">            println(<span class="string">&quot;filter <span class="variable">$it</span>&quot;</span>)</span><br><span class="line">            it.length &gt; <span class="number">3</span></span><br><span class="line">        &#125;</span><br><span class="line">        .map &#123;</span><br><span class="line">            println(<span class="string">&quot;map <span class="subst">$&#123;it.length&#125;</span>&quot;</span>)</span><br><span class="line">            it.length</span><br><span class="line">        &#125;</span><br><span class="line">        .take(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">    println(<span class="string">&quot;Lengths of first 4 words longer than 3 chars&quot;</span>)</span><br><span class="line">    println(lengthSeq.toList())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Lengths of first 4 words longer than 3 chars</span><br><span class="line">filter The</span><br><span class="line">filter quick</span><br><span class="line">map 5</span><br><span class="line">filter brown</span><br><span class="line">map 5</span><br><span class="line">filter fox</span><br><span class="line">filter jumps</span><br><span class="line">map 5</span><br><span class="line">filter over</span><br><span class="line">map 4</span><br><span class="line">[5, 5, 5, 4]</span><br></pre></td></tr></table></figure>
+<p>运行过程</p>
+<img src="/2022/01/22/kt-sequence/sequence_words.png" class="">
+
+<h3 id="3-区别"><a href="#3-区别" class="headerlink" title="3. 区别"></a>3. 区别</h3><ol>
+<li>直观来看，sequence 执行的步骤少于 list</li>
+<li>list 的操作符会立即执行，sequence 的操作符可以理解为<strong>先声明</strong>，后面执行 toList 的时候才会触发</li>
+<li>list filter 操作符处理了全量数据，然后 map 映射 filter 之后的所有数据，sequence 则是每条数据经过 filter -&gt; map 流水线处理，不合格的数据不会向后执行</li>
+</ol>
+<h2 id="二、Sequence-原理"><a href="#二、Sequence-原理" class="headerlink" title="二、Sequence 原理"></a>二、Sequence 原理</h2><p>下面我们具体看看</p>
+<ol>
+<li>为什么 sequence 能做到先声明，后触发</li>
+<li>为什么 sequence 能实现流水线的效果，避免操作浪费</li>
+</ol>
+<p>下面的图描述了，声明操作符到触发流程的过程，我们逐一剖析每一步都做了什么</p>
+<img src="/2022/01/22/kt-sequence/sequence.png" class="">
+
+<p>我们按照代码真正执行的顺序来分析，有助于理解，执行顺序正和我们声明操作的顺序相反</p>
+<h3 id="take-amp-toList"><a href="#take-amp-toList" class="headerlink" title="take &amp; toList"></a>take &amp; toList</h3><p>最后的操作符是 take(4)，然后将其转为了 List。<br>首先来看看 take</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//take(4) 操作符其实对应的会生成一个 TakeSequence 对象</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> Sequence<span class="type">&lt;T&gt;</span>.<span class="title">take</span><span class="params">(n: <span class="type">Int</span>)</span></span>: Sequence&lt;T&gt; &#123;</span><br><span class="line">    require(n &gt;= <span class="number">0</span>) &#123; <span class="string">&quot;Requested element count <span class="variable">$n</span> is less than zero.&quot;</span> &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">when</span> &#123;</span><br><span class="line">        n == <span class="number">0</span> -&gt; emptySequence()</span><br><span class="line">        <span class="keyword">this</span> <span class="keyword">is</span> DropTakeSequence -&gt; <span class="keyword">this</span>.take(n)</span><br><span class="line">        <span class="keyword">else</span> -&gt; TakeSequence(<span class="keyword">this</span>, n)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">internal</span> <span class="class"><span class="keyword">class</span> <span class="title">TakeSequence</span>&lt;<span class="type">T</span>&gt;</span>(</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> sequence: Sequence&lt;T&gt;, <span class="comment">//传入了上一个Sequence，也就是 map 对应的 Sequence</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> count: <span class="built_in">Int</span></span><br><span class="line">) : Sequence&lt;T&gt;, DropTakeSequence&lt;T&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span> &#123;</span><br><span class="line">        require(count &gt;= <span class="number">0</span>) &#123; <span class="string">&quot;count must be non-negative, but was <span class="variable">$count</span>.&quot;</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">drop</span><span class="params">(n: <span class="type">Int</span>)</span></span>: Sequence&lt;T&gt; = <span class="keyword">if</span> (n &gt;= count) emptySequence() <span class="keyword">else</span> SubSequence(sequence, n, count)</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">take</span><span class="params">(n: <span class="type">Int</span>)</span></span>: Sequence&lt;T&gt; = <span class="keyword">if</span> (n &gt;= count) <span class="keyword">this</span> <span class="keyword">else</span> TakeSequence(sequence, n)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">iterator</span><span class="params">()</span></span>: Iterator&lt;T&gt; = <span class="keyword">object</span> : Iterator&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">var</span> left = count</span><br><span class="line">        <span class="keyword">val</span> iterator = sequence.iterator() <span class="comment">//map 对应的 Sequence 的 iterator</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">next</span><span class="params">()</span></span>: T &#123;</span><br><span class="line">            <span class="keyword">if</span> (left == <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">throw</span> NoSuchElementException()</span><br><span class="line">            left--</span><br><span class="line">            <span class="keyword">return</span> iterator.next()</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">hasNext</span><span class="params">()</span></span>: <span class="built_in">Boolean</span> &#123; <span class="comment">//通过 left，决定取 list 中的前几个数据</span></span><br><span class="line">            <span class="keyword">return</span> left &gt; <span class="number">0</span> &amp;&amp; iterator.hasNext() <span class="comment">//看上一个 iterator 中是否有数据</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码中的注释已经详细解释了逻辑，其中重点是：</p>
+<ol>
+<li>操作符会对应一个 Sequence 对象去处理迭代逻辑</li>
+<li>TakeSequence 在构造的时候，传入了上一个 Sequence 对象</li>
+<li>TakeSequence 的 hasNext 返回什么取决于上一个 iterator 的 hasNext</li>
+</ol>
+<p>下面来看看 toList 做了什么</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> Sequence<span class="type">&lt;T&gt;</span>.<span class="title">toList</span><span class="params">()</span></span>: List&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.toMutableList().optimizeReadOnlyList()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T, C : MutableCollection&lt;in T&gt;</span>&gt; Sequence<span class="type">&lt;T&gt;</span>.<span class="title">toCollection</span><span class="params">(destination: <span class="type">C</span>)</span></span>: C &#123;</span><br><span class="line">    <span class="keyword">for</span> (item <span class="keyword">in</span> <span class="keyword">this</span>) &#123;</span><br><span class="line">        destination.add(item)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> destination</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>optimizeReadOnlyList 只是做了一次类型转换，将 mutable 转为 immutable。<br>toMutableList 最终会调用到 toCollection，这里面就正式开始了 iterator 的逻辑，也就是走到了 TakeSequence 里面的迭代逻辑。</p>
+<p>从 TakeSequence 迭代逻辑里知道，它会继续调用上一个 Sequence 的迭代器逻辑，<br>所以，我们大致能猜出，Sequence 是通过类似责任链的方式，完成了流水线操作，我们继续分析。</p>
+<h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T, R&gt;</span> Sequence<span class="type">&lt;T&gt;</span>.<span class="title">map</span><span class="params">(transform: (<span class="type">T</span>) -&gt; <span class="type">R</span>)</span></span>: Sequence&lt;R&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> TransformingSequence(<span class="keyword">this</span>, transform)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">internal</span> <span class="class"><span class="keyword">class</span> <span class="title">TransformingSequence</span>&lt;<span class="type">T, R</span>&gt;</span></span><br><span class="line"><span class="keyword">constructor</span>(</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> sequence: Sequence&lt;T&gt;, <span class="comment">//传入了上一个 Sequence，filter 对应的 Sequence</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> transformer: (T) -&gt; R) : Sequence&lt;R&gt; &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">iterator</span><span class="params">()</span></span>: Iterator&lt;R&gt; = <span class="keyword">object</span> : Iterator&lt;R&gt; &#123;</span><br><span class="line">        <span class="keyword">val</span> iterator = sequence.iterator()</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">next</span><span class="params">()</span></span>: R &#123;</span><br><span class="line">            <span class="keyword">return</span> transformer(iterator.next())<span class="comment">//这里调用我们的 map 逻辑</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">hasNext</span><span class="params">()</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> iterator.hasNext() <span class="comment">//调用了上一个 iterator 的 hasNext</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">internal</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;E&gt;</span> <span class="title">flatten</span><span class="params">(iterator: (<span class="type">R</span>) -&gt; <span class="type">Iterator</span>&lt;<span class="type">E</span>&gt;)</span></span>: Sequence&lt;E&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> FlatteningSequence&lt;T, R, E&gt;(sequence, transformer, iterator)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>果不其然，map 对应的 Sequence 是 TransformingSequence，并且迭代过程仍然会先调用上一个 Sequence 的 iterator，这基本印证了我们的猜想，继续分析。</p>
+<h3 id="filter"><a href="#filter" class="headerlink" title="filter"></a>filter</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> Sequence<span class="type">&lt;T&gt;</span>.<span class="title">filter</span><span class="params">(predicate: (<span class="type">T</span>) -&gt; <span class="type">Boolean</span>)</span></span>: Sequence&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> FilteringSequence(<span class="keyword">this</span>, <span class="literal">true</span>, predicate)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">internal</span> <span class="class"><span class="keyword">class</span> <span class="title">FilteringSequence</span>&lt;<span class="type">T</span>&gt;</span>(</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> sequence: Sequence&lt;T&gt;,<span class="comment">//传入上一个 Sequence，asSequence</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> sendWhen: <span class="built_in">Boolean</span> = <span class="literal">true</span>,</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">val</span> predicate: (T) -&gt; <span class="built_in">Boolean</span></span><br><span class="line">) : Sequence&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">iterator</span><span class="params">()</span></span>: Iterator&lt;T&gt; = <span class="keyword">object</span> : Iterator&lt;T&gt; &#123;</span><br><span class="line">        <span class="keyword">val</span> iterator = sequence.iterator() <span class="comment">//上一个 Sequence 的 iterator</span></span><br><span class="line">        <span class="keyword">var</span> nextState: <span class="built_in">Int</span> = -<span class="number">1</span> </span><br><span class="line">        <span class="keyword">var</span> nextItem: T? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">calcNext</span><span class="params">()</span></span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (iterator.hasNext()) &#123;<span class="comment">//上一个 iterator 是否有数据</span></span><br><span class="line">                <span class="keyword">val</span> item = iterator.next()</span><br><span class="line">                <span class="keyword">if</span> (predicate(item) == sendWhen) &#123;<span class="comment">//这里调用了我们的过滤逻辑</span></span><br><span class="line">                    nextItem = item</span><br><span class="line">                    nextState = <span class="number">1</span></span><br><span class="line">                    <span class="keyword">return</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            nextState = <span class="number">0</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">next</span><span class="params">()</span></span>: T &#123;</span><br><span class="line">            <span class="keyword">if</span> (nextState == -<span class="number">1</span>)</span><br><span class="line">                calcNext()</span><br><span class="line">            <span class="keyword">if</span> (nextState == <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">throw</span> NoSuchElementException()</span><br><span class="line">            <span class="keyword">val</span> result = nextItem</span><br><span class="line">            nextItem = <span class="literal">null</span></span><br><span class="line">            nextState = -<span class="number">1</span></span><br><span class="line">            <span class="meta">@Suppress(<span class="meta-string">&quot;UNCHECKED_CAST&quot;</span>)</span></span><br><span class="line">            <span class="keyword">return</span> result <span class="keyword">as</span> T</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">hasNext</span><span class="params">()</span></span>: <span class="built_in">Boolean</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (nextState == -<span class="number">1</span>)</span><br><span class="line">                calcNext()</span><br><span class="line">            <span class="keyword">return</span> nextState == <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>除了过滤逻辑和 map 不一致，其他是一样的。</p>
+<h3 id="asSequence"><a href="#asSequence" class="headerlink" title="asSequence"></a>asSequence</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> Iterable<span class="type">&lt;T&gt;</span>.<span class="title">asSequence</span><span class="params">()</span></span>: Sequence&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> Sequence &#123; <span class="keyword">this</span>.iterator() &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> <span class="title">Sequence</span><span class="params">(<span class="keyword">crossinline</span> iterator: () -&gt; <span class="type">Iterator</span>&lt;<span class="type">T</span>&gt;)</span></span>: Sequence&lt;T&gt; = <span class="keyword">object</span> : Sequence&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">iterator</span><span class="params">()</span></span>: Iterator&lt;T&gt; = iterator()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>源码比较简单，就是 new 了一个 Sequence 的匿名对象，并且将 list 的 iterator 作为参数传了进去。<br>所以，流水线最后调用的是 list 的 iterator。</p>
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><img src="/2022/01/22/kt-sequence/sequence.png" class="">
+
+<p>再看开始的流程图，回答提出的两个问题</p>
+<h3 id="1-为什么-sequence-能做到先声明，后触发"><a href="#1-为什么-sequence-能做到先声明，后触发" class="headerlink" title="1.为什么 sequence 能做到先声明，后触发"></a>1.为什么 sequence 能做到先声明，后触发</h3><p>因为操作符并不会触发迭代逻辑，只有最后的 toList 才会真正触发</p>
+<h3 id="2-为什么-sequence-能实现流水线的效果，避免操作浪费"><a href="#2-为什么-sequence-能实现流水线的效果，避免操作浪费" class="headerlink" title="2.为什么 sequence 能实现流水线的效果，避免操作浪费"></a>2.为什么 sequence 能实现流水线的效果，避免操作浪费</h3><p>因为我们在声明操作符的时候，将 Sequence 对象组装了成了一个链，迭代的时候会从最后一个声明的 iterator 递归地调到第一个声明的 iterator，保证执行顺序是我们声明的顺序。<br>并且，如果迭代的某一环不满足条件，就不会继续走到下一个迭代里，也就避免了操作的浪费。</p>
+<hr>
+<p><strong>如需转载，请注明原文出处，谢谢！</strong></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://zzt.github.io/2022/01/22/kt-sequence/" title="Kotlin Sequence 原理" target="_blank" rel="external">https://zzt.github.io/2022/01/22/kt-sequence/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/androidZzT" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpeg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/androidZzT" target="_blank"><span class="text-dark">ZzT</span><small class="ml-1x">Developer</small></a></h3>
+        <div></div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/01/23/kt-coroutine-create/" title="Kotlin 协程的创建过程"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/01/22/kt-receiver/" title="Kotlin Lambda 函数中的 Receiver 是什么？"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2022 ZzT
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>

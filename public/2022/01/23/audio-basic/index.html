@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>音频开发基础 | ZzT&#39;s Blog</title>
+  <meta name="description" content="本人目前音视频技术基本零基础（在公司里耳濡目染，听过一些概念，有着肤浅的理解，实际是一头雾水），鉴于本人在短视频公司工作过（不好意思不懂这些），本身其实对这块也比较感兴趣，加上之前一直没下决心系统学习这块知识，现在想开始从零开始系统学习音视频技术，并记录学习笔记「音视频从零开始」系列，希望能帮到更多零基础想学习音视频技术的同学 注：系列文章都是通过查找各个资料加上我个人理解总结出来的学习笔记，文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="音频开发基础">
+<meta property="og:url" content="https://zzt.github.io/2022/01/23/audio-basic/index.html">
+<meta property="og:site_name" content="ZzT&#39;s Blog">
+<meta property="og:description" content="本人目前音视频技术基本零基础（在公司里耳濡目染，听过一些概念，有着肤浅的理解，实际是一头雾水），鉴于本人在短视频公司工作过（不好意思不懂这些），本身其实对这块也比较感兴趣，加上之前一直没下决心系统学习这块知识，现在想开始从零开始系统学习音视频技术，并记录学习笔记「音视频从零开始」系列，希望能帮到更多零基础想学习音视频技术的同学 注：系列文章都是通过查找各个资料加上我个人理解总结出来的学习笔记，文">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe36e55ac608~tplv-t2oaga2asx-image.image">
+<meta property="og:image" content="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe41bf685ece~tplv-t2oaga2asx-image.image">
+<meta property="og:image" content="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe4e3326d98f~tplv-t2oaga2asx-image.image">
+<meta property="og:image" content="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe5c51636b87~tplv-t2oaga2asx-image.image">
+<meta property="og:image" content="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe64bd6ab53a~tplv-t2oaga2asx-image.image">
+<meta property="og:image" content="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe6c243a3458~tplv-t2oaga2asx-image.image">
+<meta property="article:published_time" content="2022-01-22T17:53:41.000Z">
+<meta property="article:modified_time" content="2022-01-22T17:57:55.184Z">
+<meta property="article:author" content="ZzT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe36e55ac608~tplv-t2oaga2asx-image.image">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://zzt.github.io/2022/01/23/audio-basic/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="ZzT&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/androidZzT" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpeg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">ZzT</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Peking, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BlockChain/">BlockChain</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/">Kotlin</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Video/">Video</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%8D%8F%E7%A8%8B/" rel="tag">Kotlin协程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%9F%BA%E7%A1%80/" rel="tag">Kotlin基础</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Video/">Video</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/audio-basic/" class="title">音频开发基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T17:53:41.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/BlockChain/">BlockChain</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/bc-bitcoin-concept/" class="title">初识比特币</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T17:01:56.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/kt-coroutine-create/" class="title">Kotlin 协程的创建过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T16:55:34.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/22/kt-sequence/" class="title">Kotlin Sequence 原理</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T14:01:56.000Z" itemprop="datePublished">2022-01-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/22/kt-receiver/" class="title">Kotlin Lambda 函数中的 Receiver 是什么？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T13:31:48.000Z" itemprop="datePublished">2022-01-22</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">Catalogue</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%87%E6%A0%B7"><span class="toc-number">1.</span> <span class="toc-text">采样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8F%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">量化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9F%B3%E9%A2%91%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81"><span class="toc-number">4.</span> <span class="toc-text">音频压缩编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%A0%E7%A7%8D%E9%9F%B3%E9%A2%91%E5%8E%8B%E7%BC%A9%E7%BC%96%E7%A0%81%E7%AE%80%E4%BB%8B"><span class="toc-number">5.</span> <span class="toc-text">几种音频压缩编码简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">思考</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">7.</span> <span class="toc-text">参考链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AC%E6%96%87%E5%A3%B0%E6%98%8E"><span class="toc-number">8.</span> <span class="toc-text">转文声明</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-audio-basic" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      音频开发基础
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/01/23/audio-basic/" class="article-date">
+	  <time datetime="2022-01-22T17:53:41.000Z" itemprop="datePublished">2022-01-23</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Video/">Video</a>
+  </span>
+
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/23/audio-basic/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <blockquote>
+<p>本人目前音视频技术基本零基础（在公司里耳濡目染，听过一些概念，有着肤浅的理解，实际是一头雾水），鉴于本人在短视频公司工作过（不好意思不懂这些），本身其实对这块也比较感兴趣，加上之前一直没下决心系统学习这块知识，现在想开始从零开始系统学习音视频技术，并记录学习笔记「音视频从零开始」系列，希望能帮到更多零基础想学习音视频技术的同学</p>
+<p>注：系列文章都是通过查找各个资料加上我个人理解总结出来的学习笔记，文章最后会附上参考文章或书籍的连接，如果有理解不对或有涉及知识侵权的地方，请及时评论联系我</p>
+</blockquote>
+<p>这是音视频技术从零开始学习笔记的第一篇，从音频技术相关的概念开始，本篇不涉及任何编程相关内容。个人认为，概念理解清楚对以后编程模块的边界、职责划分以及该使用哪些工具有很大的帮助。   </p>
+<p><img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe36e55ac608~tplv-t2oaga2asx-image.image"><br><strong>图1-音频技术核心概念</strong></p>
+<h3 id="采样"><a href="#采样" class="headerlink" title="采样"></a>采样</h3><p>模拟信号（连续信号）是连续的，意味着不会失真（音质好），比如磁带、唱片中就通过物理介质（通过唱片表面的起伏跌宕，或者是磁带上的磁粉引起的磁场强度来表示音箱上振膜的即时位置）保存着音频的模拟信号。</p>
+<p>我们都知道唱片和磁带已经逐渐离开人们的视野，就是因为通过物理手段无法长久的保存音频信号，唱片会磨损，磁带会老化，那用什么方法能够长久的保存音频信息呢？</p>
+<p>目前，使用最多的方法就是通过数字来保存音频，那么又如何将音频转为数字呢？首先先通过图中「采样」手段，将模拟信号转为离散信号，离散信号可以理解为不连续信号，把一段连续函数按照一定规则断开。</p>
+<p><img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe41bf685ece~tplv-t2oaga2asx-image.image"><br><strong>图2-采样信号</strong> <a target="_blank" rel="noopener" href="https://www.newvfx.com/forums/topic/21333">原图链接</a></p>
+<p>此图为CD标准的采样信号图，图中的「采样率44.1Khz」就是断开函数的规则，每 1s 将一段波分为 44100 个矩形，经过采样，得到了一个有一堆柱形图组成的图形（离散信号）</p>
+<p>为什么音频的采样率是 44.1Khz 呢？对于高质量的音频（人耳能够听到的频率范围是 20hz-20Khz），根据采样定理，按比人能听到的最大频率的2倍进行采样可以保证声音在被数字化处理后，还能有质量保障</p>
+<h3 id="量化"><a href="#量化" class="headerlink" title="量化"></a>量化</h3><p><img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe4e3326d98f~tplv-t2oaga2asx-image.image"><br><strong>图3-量化（信号处理）</strong></p>
+<p>经过采样后，我们发现图中的纵坐标是没有值的，无法表示每段样本的数字大小，这时候就需要引入量化的概念。通俗易懂地讲「量化」就是在沿垂直方向再将信号图按照一定数字范围切断，保证每段样本能用数字描述。这个数字的最终物理意义是反应在音响振膜位置，比如用[0-10万]进行量化，最终反应在振膜的位置就是 0-10万。</p>
+<p>那么CD的量化标准是什么呢？采用16bit(short)，也就是2的16次方，总共65536，然后为了由于振膜是可以发生正向和负向位移，所以用[-32767,32768]进行量化。</p>
+<p>所以图中虚线范围就代表了量化的数字范围，最终的红色曲线就是量化的结果，数字信号</p>
+<h3 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h3><p>经过量化后，每一个采样都是一个数字，那这么多的数字该如何存储呢？这就需要第三个概念：「编码」，所谓编码，就是按照一定的格式记录采样和量化后的数据，比如顺序存储或压缩存储等。</p>
+<p>这里涉及很多种格式，通常所说的音频的裸数据格式就是脉冲编码调制数据，简称 PCM （Pulse Code Modulation)。描述一段 PCM 通常需要以下三个概念</p>
+<ul>
+<li>量化格式（SampleFormat）</li>
+<li>采样率（SampleRate)</li>
+<li>声道数（Channel)</li>
+</ul>
+<p>还以CD标准为例，量化格式 16bit，采样率 44100，声道数 2。</p>
+<blockquote>
+<p>这里对声道概念做一个补充，平时所谓的双声道、单声道其实可以理解为需要记录几个信号，比如磁带，双声道就是同一时刻记录两个轨道的信息，一个负责记录左耳机振膜位置，一个负责记录右耳机振膜位置，以此类推，多个声道也是类似</p>
+</blockquote>
+<p>上述信息就描述了CD的音质，对于声音格式来说，还有另一个概念用来描述它的大小，称为数据比特率（bitRate)，即 1s 内的比特数目，用于衡量音频数据单位时间内的容量大小，那么比特率如何计算？</p>
+<p>$BitRate=SampleFormat<em>SampleRate</em>Channel $<br>单位为千比特每秒kbps(kb per second)。<br>比如对于CD音质，<br>$44100<em>16</em>2=1378.125kbps$<br>那么，一分钟里，CD音质数据需要占多大存储空间呢？<br>$1378.125*60/8/1024=10.09MB$</p>
+<p>所以一段1分钟的音频经过采样、量化、编码后可以得到一个大约10MB裸数据，成功地将音频的模拟信号转为数字信号，并存储下来。</p>
+<h3 id="音频压缩编码"><a href="#音频压缩编码" class="headerlink" title="音频压缩编码"></a>音频压缩编码</h3><p>上面说到1分钟的CD音质数据的存储空间大于为 10MB，这对于光盘磁盘存储来说可接受，但对于网络传输肯定是无法接受的。所以就需要「压缩编码」出面解决问题</p>
+<p>所谓音频编码主要指音频压缩技术，压缩通常又被分为有损和无损两种，但事实上，任何音频编码方式相对于最真实的自然声音信号，都是有损的压缩。从前面说到的采样、量化、编码中不难理解，我们把一条光滑的音频信号曲线分割成了许多数据块，然后对数据进行二进制编码，过程中其实就已经损失了一部分数据了，所以再次进行压缩也只能是尽可能的接近经过PCM编码后的音频裸数据。</p>
+<p><img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe5c51636b87~tplv-t2oaga2asx-image.image"><br><strong>图4-PCM编码</strong> <a target="_blank" rel="noopener" href="https://baike.baidu.com/pic/pcm%E7%BC%96%E7%A0%81/10865033/0/faedab64034f78f00a6b440077310a55b2191ce5?fr=lemma&ct=single#aid=0&pic=faedab64034f78f00a6b440077310a55b2191ce5">原图链接</a></p>
+<p>既然压缩是为了减小编码后的数据存储空间，那么就应该去掉音频的“冗余信息”，从以下两个方面去衡量哪些数据是冗余的</p>
+<ul>
+<li>之前提到过，人耳所能察觉的声音信号的频率范围为20Hz-20KHz，除此之外的其它频率人耳无法察觉，都可视为冗余信号</li>
+<li>当一个强音频信号和一个弱音频信号同时存在时，弱信号会被强信号掩蔽，可视为冗余</li>
+</ul>
+<p>其中第二点涉及另两个概念「频谱掩蔽效应」和「时域掩蔽效应」，名字看起来高深莫测，其实不难理解。</p>
+<p><img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe64bd6ab53a~tplv-t2oaga2asx-image.image"><br><strong>图5-频谱掩蔽效应</strong> <a target="_blank" rel="noopener" href="https://blog.csdn.net/leixiaohua1020/article/details/28114081">原图链接</a></p>
+<p>「频谱掩蔽效应」一个音频信号被人耳听到是有一个阈值，阈值越小越容易被人听到，如图所示，虚线是随声音频率增大反应的阈值曲线，在 2-5kHz范围内，阈值很低，是人耳对声音最敏感的频率。现在假设有一个 60dB-0.2kHz 的强音信号出现时，阈值曲线会有所改变（图中实线部分），0.1-0.5kHz 频率的阈值被明显抬高，图中大概40dB-0.17kHz 左右的信号和 30dB-0.48kHz左右的信号都会被掩蔽。所以在0.1kHz-0.5kHz范围内，只能听到 65dp-0.2kHz 的声音，其余信号可视为冗余。</p>
+<p><img src="https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/7/18/1735fe6c243a3458~tplv-t2oaga2asx-image.image"><br><strong>图6-时域掩蔽效应</strong> <a target="_blank" rel="noopener" href="https://blog.csdn.net/leixiaohua1020/article/details/28114081">原图链接</a></p>
+<p>「时域掩蔽效应」是强信号和弱信号在时间维度发生的掩蔽，分为</p>
+<ul>
+<li>前掩蔽，人在听到强信号之前，一些弱信号会被掩蔽</li>
+<li>同时掩蔽，强信号会掩蔽同时发生的弱信号</li>
+<li>后掩蔽，强信号消失后，需要经过一段时间后，才能重新听到弱信号</li>
+</ul>
+<p>在这过程中被掩蔽的信号被视为冗余</p>
+<h3 id="几种音频压缩编码简介"><a href="#几种音频压缩编码简介" class="headerlink" title="几种音频压缩编码简介"></a>几种音频压缩编码简介</h3><table>
+<thead>
+<tr>
+<th>编码</th>
+<th>实现简介</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WAV</td>
+<td>无损压缩，其中一种实现方式是在 PCM 数据格式前加上 44 字节，分别描述采样率、声道数、数据格式等信息。</td>
+<td>音质非常好，大量软件都支持</td>
+<td>多媒体开发的中间文件、保存音乐和音效</td>
+</tr>
+<tr>
+<td>MP3</td>
+<td>具有不错的压缩比，使用 LAME 编码（MP3 编码格式的一种实现）的中高码率的 MP3 文件</td>
+<td>音质在 128Kbit/s 以上表现还不错，压缩比比较高，大量软硬件都支持</td>
+<td>高比特率下对兼容性有要求的音乐鉴赏</td>
+</tr>
+<tr>
+<td>AAC</td>
+<td>新一代有损压缩技术，通过一些附加的编码技术（PS、SBR 等），衍生出了 LC-AAC、HE-AAC、HE-AAC v2三种主要编码格式</td>
+<td>小于 128Kbit/s 表现优异，多用于视频中的音频编码</td>
+<td>128Kbit/s 一下的音频编码，多用于视频中的音频编码</td>
+</tr>
+<tr>
+<td>Ogg</td>
+<td>一种非常有潜力的编码，各种码率下都有比较优秀的表现，尤其是低码率场景下。可以在低码率的场景下仍然保持不错的音质，但目前软件硬件支持情况较差</td>
+<td>可用比 MP3 更小的码率实现比 MP3 更好的音质，但兼容性不好</td>
+<td>语音聊天的音频消息场景</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>1.压缩比，压缩后大小/原大小，通常小于 1，越小表示压缩的越狠<br>2.“码率”是比特率是俗称<br>3.表格总结于《音视频开发指南》，其中一些细节有兴趣的同学可以再深入查阅，本文不再深入研究</p>
+</blockquote>
+<h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><ol>
+<li>为什么磁带、唱片逐渐消失在人们的视野里，音频播放器可以取而代之？</li>
+<li>声音是经过怎样的处理过程后保存成数字信息的？</li>
+<li>为什么要对音频数据进行压缩编码？</li>
+</ol>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19829823">将模拟音频向数字音频的转换过程是怎样的？</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-hans/%E9%87%8F%E5%8C%96_(%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86)">量化 (信号处理)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/leixiaohua1020/article/details/28114081">雷骁骅-视频压缩编码和音频压缩编码的基本原理</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/leixiaohua1020/article/details/18893769">雷骁骅-视音频编解码技术零基础学习方法</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/PCM%E7%BC%96%E7%A0%81">百度百科-PCM 编码</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E9%9F%B3%E9%A2%91%E5%8E%8B%E7%BC%A9/392863">百度百科-音频编码</a> </p>
+</li>
+<li><p>《音视频开发进阶指南-基于 Android 和 iOS 平台的实践》 - 第1章 音视频基础概念</p>
+</li>
+</ul>
+<h3 id="转文声明"><a href="#转文声明" class="headerlink" title="转文声明"></a>转文声明</h3><p>如有文章转载需求，请注明本文作者以及链接，感谢各位理解支持</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://zzt.github.io/2022/01/23/audio-basic/" title="音频开发基础" target="_blank" rel="external">https://zzt.github.io/2022/01/23/audio-basic/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/androidZzT" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpeg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/androidZzT" target="_blank"><span class="text-dark">ZzT</span><small class="ml-1x">Developer</small></a></h3>
+        <div></div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2022/01/23/bc-bitcoin-concept/" title="初识比特币"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="Catalogue" role="button">    <span>[&nbsp;</span><span>Catalogue</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2022 ZzT
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>
