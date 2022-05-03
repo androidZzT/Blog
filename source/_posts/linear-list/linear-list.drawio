@@ -1,0 +1,69 @@
+<mxfile host="65bd71144e">
+    <diagram id="kMa_WC7F1ZU2odlEcjns" name="Page-1">
+        <mxGraphModel dx="375" dy="539" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="4" value="线性表" style="ellipse;whiteSpace=wrap;html=1;align=center;newEdgeStyle={&quot;edgeStyle&quot;:&quot;entityRelationEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;,&quot;segment&quot;:10,&quot;curved&quot;:1};treeFolding=1;treeMoving=1;rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="190" y="200" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="顺序存储" style="whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;strokeWidth=1;autosize=1;spacing=4;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;entityRelationEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;,&quot;segment&quot;:10,&quot;curved&quot;:1};fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="330" y="160" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="" style="edgeStyle=entityRelationEdgeStyle;startArrow=none;endArrow=none;segment=10;curved=1;rounded=1;fontStyle=1;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" target="5" parent="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="290" y="214" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="8" value="链式存储" style="whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;strokeWidth=1;autosize=1;spacing=4;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;entityRelationEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;,&quot;segment&quot;:10,&quot;curved&quot;:1};fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="330" y="240" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="" style="edgeStyle=entityRelationEdgeStyle;startArrow=none;endArrow=none;segment=10;curved=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontStyle=1;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" target="8" parent="1" source="4">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="290" y="236" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="10" value="&lt;span&gt;顺序表&lt;/span&gt;" style="whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;snapToPoint=1;recursiveResize=0;autosize=1;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;entityRelationEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;,&quot;segment&quot;:10,&quot;curved&quot;:1};rounded=1;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="465" y="160" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="" style="edgeStyle=entityRelationEdgeStyle;startArrow=none;endArrow=none;segment=10;curved=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontStyle=1" edge="1" target="10" parent="1" source="5">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="420" y="210" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="单链表" style="whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;snapToPoint=1;recursiveResize=0;autosize=1;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;entityRelationEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;,&quot;segment&quot;:10,&quot;curved&quot;:1};rounded=1;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="465" y="210" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="" style="edgeStyle=entityRelationEdgeStyle;startArrow=none;endArrow=none;segment=10;curved=1;rounded=1;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" target="13" parent="1" source="8">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="420" y="248" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="16" value="双链表" style="whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;snapToPoint=1;recursiveResize=0;autosize=1;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;entityRelationEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;,&quot;segment&quot;:10,&quot;curved&quot;:1};rounded=1;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="465" y="250" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="" style="edgeStyle=entityRelationEdgeStyle;startArrow=none;endArrow=none;segment=10;curved=1;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontStyle=1" edge="1" target="16" parent="1" source="8">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="410" y="320" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="18" value="循环链表" style="whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;snapToPoint=1;recursiveResize=0;autosize=1;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;entityRelationEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;,&quot;segment&quot;:10,&quot;curved&quot;:1};rounded=1;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="460" y="290" width="80" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="" style="edgeStyle=entityRelationEdgeStyle;startArrow=none;endArrow=none;segment=10;curved=1;rounded=1;fontStyle=1" edge="1" target="18" parent="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="420" y="255" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="20" value="静态链表" style="whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;snapToPoint=1;recursiveResize=0;autosize=1;treeFolding=1;treeMoving=1;newEdgeStyle={&quot;edgeStyle&quot;:&quot;entityRelationEdgeStyle&quot;,&quot;startArrow&quot;:&quot;none&quot;,&quot;endArrow&quot;:&quot;none&quot;,&quot;segment&quot;:10,&quot;curved&quot;:1};rounded=1;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="460" y="327.5" width="80" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="" style="edgeStyle=entityRelationEdgeStyle;startArrow=none;endArrow=none;segment=10;curved=1;rounded=1;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" target="20" parent="1" source="8">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="420" y="260" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

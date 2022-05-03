@@ -94,6 +94,12 @@ include:
 exclude:
 ignore:
 
+# Math Equations Render Support
+math:
+  enable: true
+  per_page: true
+  engine: mathjax
+
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/

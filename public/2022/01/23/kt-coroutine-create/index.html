@@ -18,12 +18,12 @@
   
   
   <title>Kotlin 协程的创建过程 | ZzT&#39;s Blog</title>
-  <meta name="description" content="创建并启动协程123456789101112131415161718fun create.main() &amp;#123;    &#x2F;&#x2F;1. 创建协程体    val coroutine &#x3D; suspend &amp;#123;        println(&quot;in coroutine&quot;)        5    &amp;#125;.createCoroutine(object: Continu">
+  <meta name="description" content="创建并启动协程123456789101112131415161718fun create.main() &amp;#123;    &#x2F;&#x2F;1. 创建协程体    val coroutine &#x3D; suspend &amp;#123;        println(&quot;in coroutine&quot;)        5    &amp;#125;.createCoroutine(object: Continua">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kotlin 协程的创建过程">
 <meta property="og:url" content="https://zzt.github.io/2022/01/23/kt-coroutine-create/index.html">
 <meta property="og:site_name" content="ZzT&#39;s Blog">
-<meta property="og:description" content="创建并启动协程123456789101112131415161718fun create.main() &amp;#123;    &#x2F;&#x2F;1. 创建协程体    val coroutine &#x3D; suspend &amp;#123;        println(&quot;in coroutine&quot;)        5    &amp;#125;.createCoroutine(object: Continu">
+<meta property="og:description" content="创建并启动协程123456789101112131415161718fun create.main() &amp;#123;    &#x2F;&#x2F;1. 创建协程体    val coroutine &#x3D; suspend &amp;#123;        println(&quot;in coroutine&quot;)        5    &amp;#125;.createCoroutine(object: Continua">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://zzt.github.io/2022/01/23/kt-coroutine-create/call_stack.png">
 <meta property="og:image" content="https://zzt.github.io/2022/01/23/kt-coroutine-create/call_process.png">
@@ -50,7 +50,11 @@
   
   
   
-<meta name="generator" content="Hexo 5.4.0"></head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
 
 
 <body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
@@ -148,7 +152,7 @@
   <div class="widget">
     <h3 class="widget-title">Categories</h3>
     <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BlockChain/">BlockChain</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/">Kotlin</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Video/">Video</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BlockChain/">BlockChain</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/">Kotlin</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Video/">Video</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a><span class="category-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -158,7 +162,7 @@
   <div class="widget">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%8D%8F%E7%A8%8B/" rel="tag">Kotlin协程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%9F%BA%E7%A1%80/" rel="tag">Kotlin基础</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%8D%8F%E7%A8%8B/" rel="tag">Kotlin协程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%9F%BA%E7%A1%80/" rel="tag">Kotlin基础</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%AB%98%E6%95%B0/" rel="tag">高数</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -168,7 +172,7 @@
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">5</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">6</span></li></ul>
     </div>
   </div>
 
@@ -180,6 +184,36 @@
     <div class="widget-body">
       <ul class="recent-post-list list-unstyled no-thumbnail">
         
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/03/basic-integral/" class="title">不定积分基本公式与推导</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-03T07:28:33.000Z" itemprop="datePublished">2022-05-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/26/linear-list/" class="title">线性表</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-26T14:35:02.000Z" itemprop="datePublished">2022-01-26</time>
+              </p>
+            </div>
+          </li>
+          
           <li>
             
             <div class="item-inner">
@@ -221,36 +255,6 @@
               </p>
               <p class="item-date">
                 <time datetime="2022-01-22T16:55:34.000Z" itemprop="datePublished">2022-01-23</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
-              </p>
-              <p class="item-title">
-                <a href="/2022/01/22/kt-sequence/" class="title">Kotlin Sequence 原理</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2022-01-22T14:01:56.000Z" itemprop="datePublished">2022-01-22</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
-              </p>
-              <p class="item-title">
-                <a href="/2022/01/22/kt-receiver/" class="title">Kotlin Lambda 函数中的 Receiver 是什么？</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2022-01-22T13:31:48.000Z" itemprop="datePublished">2022-01-22</time>
               </p>
             </div>
           </li>
@@ -325,17 +329,11 @@
     <div class="article-entry marked-body" itemprop="articleBody">
       
         
-
 <h3 id="创建并启动协程"><a href="#创建并启动协程" class="headerlink" title="创建并启动协程"></a>创建并启动协程</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> create.<span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">//1. 创建协程体</span></span><br><span class="line">    <span class="keyword">val</span> coroutine = <span class="keyword">suspend</span> &#123;</span><br><span class="line">        println(<span class="string">&quot;in coroutine&quot;</span>)</span><br><span class="line">        <span class="number">5</span></span><br><span class="line">    &#125;.createCoroutine(<span class="keyword">object</span>: Continuation&lt;<span class="built_in">Int</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">resumeWith</span><span class="params">(result: <span class="type">Result</span>&lt;<span class="type">Int</span>&gt;)</span></span> &#123;</span><br><span class="line">            println(<span class="string">&quot;coroutine end: <span class="variable">$result</span>&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="keyword">val</span> context: CoroutineContext</span><br><span class="line">            <span class="keyword">get</span>() = EmptyCoroutineContext</span><br><span class="line"></span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment">//2. 执行协程</span></span><br><span class="line">    coroutine.resume(<span class="built_in">Unit</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>上面代码的输出结果：</strong></p>
-<figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">in coroutine</span><br><span class="line">coroutine end: Success(5)</span><br></pre></td></tr></table></figure>
-
+<p><strong>上面代码的输出结果：</strong><br><figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">in coroutine</span><br><span class="line">coroutine end: Success(5)</span><br></pre></td></tr></table></figure></p>
 <h3 id="协程的执行过程"><a href="#协程的执行过程" class="headerlink" title="协程的执行过程"></a>协程的执行过程</h3><img src="/2022/01/23/kt-coroutine-create/call_stack.png" class="">
-
 <p>调用栈流程如下</p>
 <img src="/2022/01/23/kt-coroutine-create/call_process.png" class="">
-
 <ol>
 <li>我们通过 suspend block#createCoroutine 得到的 coroutine 实际是 SafeContinuation 对象 </li>
 <li>SafeContinuation 实际上是代理类，其中的 delegate 属性才是真正的 Continuation 对象 </li>
@@ -351,13 +349,10 @@
 </ul>
 <p>下面我通过断点，进一步分析 suspend block 是通过哪个子类执行的。</p>
 <img src="/2022/01/23/kt-coroutine-create/break_point.png" class="">
-
 <p>可以看到 current 是名为 {文件}${方法}${变量}$1 格式的对象，证明 kotlin 编译器遇到 suspend 关键字后会帮我们生成一个 BaseContinuationImpl 的子类</p>
 <p>那么，这个子类到底是什么呢？将 kt 编译为 .class 再通过 jadx 打开后，得到的 java 代码如下</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">CreateCoroutineKt</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">void</span> create.main() &#123;</span><br><span class="line">        Continuation coroutine = ContinuationKt.createCoroutine(<span class="keyword">new</span> CreateCoroutineKt$create.main$coroutine$<span class="number">1</span>(<span class="keyword">null</span>), <span class="keyword">new</span> CreateCoroutineKt$create.main$coroutine$<span class="number">2</span>());</span><br><span class="line">        Unit unit = Unit.INSTANCE;</span><br><span class="line">        Result.Companion companion = Result.Companion;</span><br><span class="line">        coroutine.resumeWith(Result.constructor-impl(unit));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">CreateCoroutineKt</span>$<span class="title">create</span>.<span class="title">main</span>$<span class="title">coroutine</span>$1 <span class="keyword">extends</span> <span class="title">SuspendLambda</span> <span class="keyword">implements</span> <span class="title">Function1</span>&lt;<span class="title">Continuation</span>&lt;? <span class="title">super</span> <span class="title">Integer</span>&gt;, <span class="title">Object</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> label;</span><br><span class="line"></span><br><span class="line">    CreateCoroutineKt$create.main$coroutine$<span class="number">1</span>(Continuation&lt;? <span class="keyword">super</span> CreateCoroutineKt$create.main$coroutine$<span class="number">1</span>&gt; continuation) &#123;</span><br><span class="line">        <span class="keyword">super</span>(<span class="number">1</span>, continuation);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Continuation&lt;Unit&gt; <span class="title">create</span><span class="params">(<span class="meta">@NotNull</span> Continuation&lt;?&gt; continuation)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CreateCoroutineKt$create.main$coroutine$<span class="number">1</span>(continuation);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Nullable</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Object <span class="title">invoke</span><span class="params">(<span class="meta">@Nullable</span> Continuation&lt;? <span class="keyword">super</span> Integer&gt; continuation)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> create(continuation).invokeSuspend(Unit.INSTANCE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Nullable</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Object <span class="title">invokeSuspend</span><span class="params">(<span class="meta">@NotNull</span> Object obj)</span> </span>&#123;</span><br><span class="line">        IntrinsicsKt.getCOROUTINE_SUSPENDED();</span><br><span class="line">        <span class="keyword">switch</span> (<span class="keyword">this</span>.label) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">                ResultKt.throwOnFailure(obj);</span><br><span class="line">                System.out.println((Object) <span class="string">&quot;in coroutine&quot;</span>); <span class="comment">//协程体的逻辑</span></span><br><span class="line">                <span class="keyword">return</span> Boxing.boxInt(<span class="number">5</span>);</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">&quot;call to &#x27;resume&#x27; before &#x27;invoke&#x27; with coroutine&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>明显看出，kt 编译器帮助我们把 suspend 关键字变为了 SuspendLambda 的 子类，并重写了 invokeSuspend 方法，不难猜出 SuspendLambda 继承自 BaseContinuationImp</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>用一个类图简单的总结一个协程创建并执行的过程。</p>
 <img src="/2022/01/23/kt-coroutine-create/uml.png" class="">
