@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>【Kotlin Compiler】IR Transform Plugin 教程 | ZzT&#39;s Blog</title>
+  <meta name="description" content="【Kotlin Compiler】IR Transform Plugin 教程  本文会通过一个小 demo 手把手教你学会如何利用 Kotlin Compiler Plugin 进行 IR 插桩。如果你对 IR（intermediate representation） 是什么还一知半解，不妨先参考 【Kotlin Compiler】IR 介绍 如果你想直接参考源码，可以直接看这里，如果能点个 s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Kotlin Compiler】IR Transform Plugin 教程">
+<meta property="og:url" content="https://zzt.github.io/2022/05/29/kt-complier-plugin/index.html">
+<meta property="og:site_name" content="ZzT&#39;s Blog">
+<meta property="og:description" content="【Kotlin Compiler】IR Transform Plugin 教程  本文会通过一个小 demo 手把手教你学会如何利用 Kotlin Compiler Plugin 进行 IR 插桩。如果你对 IR（intermediate representation） 是什么还一知半解，不妨先参考 【Kotlin Compiler】IR 介绍 如果你想直接参考源码，可以直接看这里，如果能点个 s">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://zzt.github.io/2022/05/29/kt-complier-plugin/kt_gradle_plugin.png">
+<meta property="og:image" content="https://zzt.github.io/2022/05/29/kt-complier-plugin/method_cost.png">
+<meta property="article:published_time" content="2022-05-29T12:37:37.000Z">
+<meta property="article:modified_time" content="2022-05-29T12:49:38.784Z">
+<meta property="article:author" content="ZzT">
+<meta property="article:tag" content="Kotlin Compiler">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zzt.github.io/2022/05/29/kt-complier-plugin/kt_gradle_plugin.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://zzt.github.io/2022/05/29/kt-complier-plugin/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="ZzT&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/androidZzT" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpeg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">ZzT</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Peking, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BlockChain/">BlockChain</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/">Kotlin</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Video/">Video</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin-Compiler/" rel="tag">Kotlin Compiler</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%8D%8F%E7%A8%8B/" rel="tag">Kotlin协程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%9F%BA%E7%A1%80/" rel="tag">Kotlin基础</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%AB%98%E6%95%B0/" rel="tag">高数</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">6</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/29/kt-complier-plugin/" class="title">【Kotlin Compiler】IR Transform Plugin 教程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T12:37:37.000Z" itemprop="datePublished">2022-05-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/29/kt-ir/" class="title">【Kotlin Compiler】IR 介绍</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T12:37:24.000Z" itemprop="datePublished">2022-05-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/03/basic-integral/" class="title">不定积分基本公式与推导</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-03T07:28:33.000Z" itemprop="datePublished">2022-05-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/26/linear-list/" class="title">线性表</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-26T14:35:02.000Z" itemprop="datePublished">2022-01-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Video/">Video</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/audio-basic/" class="title">音频开发基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T17:53:41.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-kt-complier-plugin" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【Kotlin Compiler】IR Transform Plugin 教程
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/05/29/kt-complier-plugin/" class="article-date">
+	  <time datetime="2022-05-29T12:37:37.000Z" itemprop="datePublished">2022-05-29</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/Kotlin-Compiler/" rel="tag">Kotlin Compiler</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/05/29/kt-complier-plugin/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="【Kotlin-Compiler】IR-Transform-Plugin-教程"><a href="#【Kotlin-Compiler】IR-Transform-Plugin-教程" class="headerlink" title="【Kotlin Compiler】IR Transform Plugin 教程"></a>【Kotlin Compiler】IR Transform Plugin 教程</h2><blockquote>
+<ul>
+<li>本文会通过一个小 demo 手把手教你学会如何利用 Kotlin Compiler Plugin 进行 IR 插桩。如果你对 IR（intermediate representation） 是什么还一知半解，不妨先参考 <a href="">【Kotlin Compiler】IR 介绍</a></li>
+<li>如果你想直接参考源码，可以直接看<a target="_blank" rel="noopener" href="https://github.com/androidZzT/KtIRTransformSample">这里</a>，如果能点个 star 就更好了</li>
+</ul>
+</blockquote>
+<p>下面开始正题</p>
+<h3 id="我们的目标是什么？"><a href="#我们的目标是什么？" class="headerlink" title="我们的目标是什么？"></a>我们的目标是什么？</h3><p>先来看两段代码<br><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">foo</span><span class="params">(param1: <span class="type">String</span>? = <span class="string">&quot;Hello&quot;</span>, param2: <span class="type">String</span>? = <span class="string">&quot;World&quot;</span>)</span></span>: String &#123;</span><br><span class="line">  println(<span class="string">&quot;foo costs[<span class="subst">$&#123;startTime.elapsedNow()&#125;</span>]&quot;</span>)</span><br><span class="line">  <span class="keyword">val</span> startTime = TimeSource.Monotonic.markNow() <span class="comment">//类似 Java 中的 System.currentMills()</span></span><br><span class="line">  <span class="comment">// do something cost time</span></span><br><span class="line">  <span class="keyword">val</span> result = param1 + param2</span><br><span class="line">  println(<span class="string">&quot;foo costs[<span class="subst">$&#123;startTime.elapsedNow()&#125;</span>]&quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这是我们日常通过 log 统计方法耗时的一个小例子，如果需要统计的方法数量较多，我们要手写非常多的重复代码。</p>
+<p>在 Java 中，我们可以找到被注解标注的方法，然后通过 Transform 字节码的方式将模板代码插到指定位置。在 Kotlin 中，方案是一样的，只不过我们需要 Transform 的不是字节码了，而是 IR。做完 Transform 的工作后，只需写下面这段代码就可满足需求。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Cost</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">foo</span><span class="params">(param1: <span class="type">String</span>? = <span class="string">&quot;Hello&quot;</span>, param2: <span class="type">String</span>? = <span class="string">&quot;World&quot;</span>)</span></span>: String &#123;</span><br><span class="line">  <span class="keyword">return</span> param1 + param2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="怎样开发一个-Kotlin-Compiler-Plugin？"><a href="#怎样开发一个-Kotlin-Compiler-Plugin？" class="headerlink" title="怎样开发一个 Kotlin Compiler Plugin？"></a>怎样开发一个 Kotlin Compiler Plugin？</h3><p>了解完我们的目标后，就需要了解开发一个 Kotlin Compiler Plugin 的标准过程是什么？我们需要了解那些概念，要用哪些 API？</p>
+<p>下面我们先来看看如何开发 Kotlin Compiler Plugin</p>
+<img src="/2022/05/29/kt-complier-plugin/kt_gradle_plugin.png" class="">
+<p>此图是 Kotlin Compiler Plugin 的架构图，我已经在图中标注了每个模块的职责是什么，不再赘述。</p>
+<h4 id="0-工程搭建"><a href="#0-工程搭建" class="headerlink" title="0.工程搭建"></a>0.工程搭建</h4><p>环境说明：</p>
+<ul>
+<li>IDE-IntelliJ IDEA 2021.3.3 (Community Edition)</li>
+<li>KotlinPlugin-1.6.21</li>
+<li>JDK-1.8</li>
+</ul>
+<p>下面是工程中需要依赖的库和插件，详细可参考<a target="_blank" rel="noopener" href="https://github.com/androidZzT/KtIRTransformSample/blob/main/build.gradle">Sample代码依赖</a><br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="attr">plugin:</span> <span class="string">&quot;java-gradle-plugin&quot;</span></span><br><span class="line">apply <span class="attr">plugin:</span> <span class="string">&quot;org.jetbrains.kotlin.jvm&quot;</span></span><br><span class="line">apply <span class="attr">plugin:</span> <span class="string">&quot;kotlin-kapt&quot;</span></span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    implementation gradleApi()</span><br><span class="line">    implementation(<span class="string">&quot;org.jetbrains.kotlin:kotlin-stdlib:1.6.21&quot;</span>) <span class="comment">// kotlin 标准库</span></span><br><span class="line">    implementation(<span class="string">&quot;org.jetbrains.kotlin:kotlin-gradle-plugin-api:1.6.21&quot;</span>) <span class="comment">// kotlin-插件 api</span></span><br><span class="line">    implementation(<span class="string">&quot;org.jetbrains.kotlin:kotlin-compiler-embeddable:1.6.21&quot;</span>) <span class="comment">// kotlin-插件 api 注意：如果需要用 com.github.tschuchortdev:kotlin-compile-testing，这里必须使用 embeddable 版本</span></span><br><span class="line">    implementation <span class="string">&quot;com.google.auto.service:auto-service:1.0.1&quot;</span> <span class="comment">//auto-service，找到插件中的具体实现类</span></span><br><span class="line">    kapt <span class="string">&quot;com.google.auto.service:auto-service:1.0.1&quot;</span> <span class="comment">//kapt 生成映射代码</span></span><br><span class="line"></span><br><span class="line">    testImplementation <span class="string">&#x27;org.junit.jupiter:junit-jupiter:5.8.1&#x27;</span> <span class="comment">// junit engine</span></span><br><span class="line">    testImplementation <span class="string">&#x27;org.jetbrains.kotlin:kotlin-test-junit:1.6.21&#x27;</span></span><br><span class="line">    testImplementation(<span class="string">&quot;com.github.tschuchortdev:kotlin-compile-testing:1.4.8&quot;</span>) <span class="comment">//compiler plugin / ksp plugin 单测扩展库</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="1-KotlinCompilerPluginSupportPlugin"><a href="#1-KotlinCompilerPluginSupportPlugin" class="headerlink" title="1.KotlinCompilerPluginSupportPlugin"></a>1.KotlinCompilerPluginSupportPlugin</h4><p>此类是 Gradle 和 Kotlin 的桥梁，主要职责是提供插件入口，获取插件 AGV（artifact group version）</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MethodPerfIRPlugin</span>: <span class="type">KotlinCompilerPluginSupportPlugin &#123;</span></span></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">applyToCompilation</span><span class="params">(kotlinCompilation: <span class="type">KotlinCompilation</span>&lt;*&gt;)</span></span>: Provider&lt;List&lt;SubpluginOption&gt;&gt; &#123;</span><br><span class="line">        <span class="keyword">val</span> project = kotlinCompilation.target.project</span><br><span class="line">        <span class="keyword">val</span> extension = project.extensions.getByType(MethodPerfExtension::<span class="keyword">class</span>.java) <span class="keyword">as</span> MethodPerfExtension </span><br><span class="line">        <span class="comment">//可以获取到 build.gradle 中定义的一些配置，透传到 kotlin plugin 中</span></span><br><span class="line">        <span class="keyword">return</span> project.provider &#123;</span><br><span class="line">        listOf(</span><br><span class="line">            SubpluginOption(key = <span class="string">&quot;string&quot;</span>, value = extension.string),</span><br><span class="line">            SubpluginOption(key = <span class="string">&quot;file&quot;</span>, value = extension.file),</span><br><span class="line">        )</span><br><span class="line">        &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * [isApplicable] is checked against compilations of the project, and if it returns true,</span></span><br><span class="line"><span class="comment">   * then [applyToCompilation] may be called later.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">isApplicable</span><span class="params">(kotlinCompilation: <span class="type">KotlinCompilation</span>&lt;*&gt;)</span></span>: <span class="built_in">Boolean</span> = project.plugins.hasPlugin(MethodPerfIRPlugin::<span class="keyword">class</span>.java)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>重点要说的是 <code>applyToCompilation</code>，<code>isApplicable</code> 两个方法：</p>
+<ul>
+<li><code>isApplicable</code>比较简单，只有当其返回 true 的时候，<code>applyToCompilation</code>才会执行</li>
+<li><code>applyToCompilation</code> 重点是返回值，在 <code>build.gradle</code> 的一些自定义配置可以通过这里透传到 Kotlin Compiler Plugin 中来，方便后续使用</li>
+</ul>
+<h4 id="2-CommandLineProcessor"><a href="#2-CommandLineProcessor" class="headerlink" title="2.CommandLineProcessor"></a>2.CommandLineProcessor</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">@AutoService(CommandLineProcessor::class)</span> <span class="comment">// don&#x27;t forget it</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MethodPerfCommandLineProcessor</span> : <span class="type">CommandLineProcessor &#123;</span></span></span><br><span class="line"><span class="comment">// 指明插件 id</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">val</span> pluginId: String = <span class="string">&quot;com.zzt.demo.kt-method-perf-plugin&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义 cli option</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">val</span> pluginOptions: Collection&lt;AbstractCliOption&gt; = listOf(</span><br><span class="line">    CliOption(</span><br><span class="line">      optionName = OPTION_STRING,</span><br><span class="line">      valueDescription = <span class="string">&quot;string&quot;</span>,</span><br><span class="line">      description = <span class="string">&quot;sample string argument&quot;</span>,</span><br><span class="line">      required = <span class="literal">false</span>,</span><br><span class="line">    ),</span><br><span class="line">    CliOption(</span><br><span class="line">      optionName = OPTION_FILE,</span><br><span class="line">      valueDescription = <span class="string">&quot;file&quot;</span>,</span><br><span class="line">      description = <span class="string">&quot;sample file argument&quot;</span>,</span><br><span class="line">      required = <span class="literal">false</span>,</span><br><span class="line">    ),</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line"><span class="comment">// 解析 cli 参数</span></span><br><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">processOption</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    option: <span class="type">AbstractCliOption</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">    value: <span class="type">String</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">    configuration: <span class="type">CompilerConfiguration</span></span></span></span><br><span class="line"><span class="params"><span class="function">  )</span></span> &#123;</span><br><span class="line">    println(<span class="string">&quot;processOption:: option=<span class="variable">$option</span> value=<span class="variable">$value</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">when</span> (option.optionName) &#123;</span><br><span class="line">      OPTION_STRING -&gt; configuration.put(ARG_STRING, value)</span><br><span class="line">      OPTION_FILE -&gt; configuration.put(ARG_FILE, value)</span><br><span class="line">      <span class="keyword">else</span> -&gt; <span class="keyword">throw</span> IllegalArgumentException(<span class="string">&quot;Unexpected config option <span class="subst">$&#123;option.optionName&#125;</span>&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此类和 <code>ComponentRegistrar</code> 是我们写插件真正的入口，<code>CommandLineProcessor</code> 的作用是解析 cli 中的参数并保存下来，本次目标不涉及，大家有兴趣或有需求可以自己研究。</p>
+<p>需要注意的是，此类一定要用 <code>@AutoService</code> 标记，否则无法调用到我们的实现</p>
+<h4 id="3-ComponentRegistrar"><a href="#3-ComponentRegistrar" class="headerlink" title="3.ComponentRegistrar"></a>3.ComponentRegistrar</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@AutoService(ComponentRegistrar::class)</span> <span class="comment">// don&#x27;t forget it</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MethodPerfComponentRegistrar</span>: <span class="type">ComponentRegistrar &#123;</span></span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">registerProjectComponents</span><span class="params">(project: <span class="type">MockProject</span>, configuration: <span class="type">CompilerConfiguration</span>)</span></span> &#123;</span><br><span class="line">    println(<span class="string">&quot;registerProjectComponents:: <span class="subst">$&#123;project.name&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> string = configuration.<span class="keyword">get</span>(MethodPerfCommandLineProcessor.ARG_STRING, <span class="string">&quot;String&quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> file = configuration.<span class="keyword">get</span>(MethodPerfCommandLineProcessor.ARG_FILE, <span class="string">&quot;File&quot;</span>)</span><br><span class="line">    IrGenerationExtension.registerExtension(project, MethodPerfExtension(string, file))</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此类的作用有两个：</p>
+<ol>
+<li>使用 <code>CommanLineProcessor</code> 中保存好的 option，本次逻辑不涉及，参考代码写法即可</li>
+<li>注册 <code>Extension</code>，下面具体看 <code>Extension</code> 是什么</li>
+</ol>
+<p>同样注意，不要忘记加 <code>@AutoService</code></p>
+<h4 id="4-Extension"><a href="#4-Extension" class="headerlink" title="4.Extension"></a>4.Extension</h4><p>重点来了，我们 80% 的逻辑可能都写在 <code>Extension</code> 中，通过此类我们可以对 IR 进行增删改，具体如下</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MethodPerfExtension</span></span>(): IrGenerationExtension &#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">generate</span><span class="params">(moduleFragment: <span class="type">IrModuleFragment</span>, pluginContext: <span class="type">IrPluginContext</span>)</span></span> &#123;</span><br><span class="line">    <span class="comment">// transform IR</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此类中只有 <code>generate</code> 方法，其中包含两个参数：</p>
+<ol>
+<li><code>IrModuleFragment</code> 代表 IR 树的根节点，描述的是 module 相关的信息，比如里面是一组 <code>irFile</code>，自顶向下遍历可以得到整个 module 的 ir 信息</li>
+<li><code>IrPluginContext</code> 包含了大多数我们在 transform IR 时用到的 api 和信息</li>
+</ol>
+<p><strong>Dump IR 树</strong></p>
+<p>在 Kotlin IR 中，<code>IrElement</code> 是一切 IR 结构的父类，我们可以通过其扩展方法 <code>IrElement.dump</code> 查看 IR 树是怎样的结构。</p>
+<p>比如，我们在 generate 中调用 <code>moduleFragment.dump()</code>，来查看下面代码的 IR</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  println(<span class="string">&quot;Hello, World!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>会得到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">MODULE_FRAGMENT name:&lt;main&gt;</span><br><span class="line">  FILE fqName:&lt;root&gt; fileName:/var/folders/lt/k622ndqs14l7_tcxst93z3cm0000gp/T/Kotlin-Compilation7335327567848552666/sources/main.kt</span><br><span class="line">    FUN name:main visibility:public modality:FINAL &lt;&gt; () returnType:kotlin.Unit</span><br><span class="line">      BLOCK_BODY</span><br><span class="line">        CALL &#x27;public final fun println (message: kotlin.Any?): kotlin.Unit [inline] declared in kotlin.io.ConsoleKt&#x27; type=kotlin.Unit origin=null</span><br><span class="line">          message: CONST String type=kotlin.String value=&quot;Hello, World!&quot;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="实现目标"><a href="#实现目标" class="headerlink" title="实现目标"></a>实现目标</h3><p>了解 Kotlin Complier Plugin 的基本情况后，你应该大致清楚了开发插件的过程。下面我们通过完成目标，加深对这个过程的理解。</p>
+<h4 id="0-技术方案"><a href="#0-技术方案" class="headerlink" title="0.技术方案"></a>0.技术方案</h4><img src="/2022/05/29/kt-complier-plugin/method_cost.png" class="">
+<p>Transform 流程并不复杂，主要包含了：</p>
+<ol>
+<li>找到加注解的方法</li>
+<li>重写方法体 IR<br>a. 增加时间戳<br>b. 原始方法体<br>c. 统计耗时</li>
+<li>如果方法包含返回值，需要先保存返回值，再进行统计耗时</li>
+</ol>
+<h4 id="1-开发-IrElementTransformer"><a href="#1-开发-IrElementTransformer" class="headerlink" title="1.开发 IrElementTransformer"></a>1.开发 IrElementTransformer</h4><p>IrElementTransformer 继承自 IrElementVisitor，功能类似，不再赘述。</p>
+<p>直接看一下代码，我们在 IrElementTransformer 中做了什么<br><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MethodCostTimeTransformer</span></span>(</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">val</span> pluginContext: IrPluginContext</span><br><span class="line">): IrElementTransformerVoidWithContext() &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">visitFunctionNew</span><span class="params">(declaration: <span class="type">IrFunction</span>)</span></span>: IrStatement &#123;</span><br><span class="line">    println(<span class="string">&quot;visitFunctionNew:: <span class="subst">$&#123;declaration.render()&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> body = declaration.body</span><br><span class="line">    <span class="keyword">val</span> annotationClass = pluginContext.referenceClass(FqName(<span class="string">&quot;com.zzt.demo.annotation.Cost&quot;</span>))!!</span><br><span class="line">    <span class="keyword">if</span> (body != <span class="literal">null</span> &amp;&amp; declaration.hasAnnotation(annotationClass)) &#123; <span class="comment">//有方法体&amp;被注解标注的方法</span></span><br><span class="line">      declaration.body = irCost(declaration, body) <span class="comment">//transform 方法体</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.visitFunctionNew(declaration)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>逻辑比较清晰，找到我们定义的注解，看被 visit 的方法是否加了注解，如果加了，就调用 <code>irCost()</code> Transform 方法体 IR</p>
+<p>下面看看 <code>irCost()</code> 做了什么<br><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">irCost</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  irFunction: <span class="type">IrFunction</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">  irBody: <span class="type">IrBody</span>)</span></span>: IrBlockBody &#123;</span><br><span class="line">  println(<span class="string">&quot;irCost:: &quot;</span>)</span><br><span class="line">  <span class="keyword">return</span> DeclarationIrBuilder(pluginContext, irFunction.symbol).irBlockBody &#123;</span><br><span class="line">    +costEnter(pluginContext, irFunction) <span class="comment">//打印目标函数信息</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> startTime = irTemporary(irCall(pluginContext.markNowFunc()).also &#123;</span><br><span class="line">      it.dispatchReceiver = irGetObject(pluginContext.monotonicClass())</span><br><span class="line">    &#125;) <span class="comment">// 相当于调用 TimeSource.Monotonic.markNow()</span></span><br><span class="line"></span><br><span class="line">    +irBlock(resultType = irFunction.returnType) &#123;</span><br><span class="line">      <span class="keyword">for</span>(statement <span class="keyword">in</span> irBody.statements) &#123; <span class="comment">//原有方法体中的表达式</span></span><br><span class="line">        +statement</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;.transform(CostTimeReturnTransformer(pluginContext, irFunction, startTime), <span class="literal">null</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ol>
+<li>在方法耗时统计之前，通过 <code>costEnter()</code> 插桩打印目标函数的信息，比如方法名，参数是什么</li>
+<li>调用 <code>TimeSource.Monotonic.markNow()</code> 记录开始时间 startTime</li>
+<li>追加原有方法体内容，并开始进行返回体的 Transform</li>
+</ol>
+<h4 id="2-CostTimeReturnTransformer"><a href="#2-CostTimeReturnTransformer" class="headerlink" title="2. CostTimeReturnTransformer"></a>2. CostTimeReturnTransformer</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CostTimeReturnTransformer</span></span>(</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">val</span> pluginContext: IrPluginContext,</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">val</span> irFunction: IrFunction,</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">val</span> startTime: IrValueDeclaration</span><br><span class="line">): IrElementTransformerVoidWithContext() &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">visitReturn</span><span class="params">(expression: <span class="type">IrReturn</span>)</span></span>: IrExpression &#123;</span><br><span class="line">    println(<span class="string">&quot;visitReturn:: <span class="subst">$&#123;expression.render()&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> (expression.returnTargetSymbol != irFunction.symbol) <span class="comment">//只 transform 目标函数</span></span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">super</span>.visitReturn(expression)</span><br><span class="line"></span><br><span class="line">    println(<span class="string">&quot;transform return:: &quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> DeclarationIrBuilder(pluginContext, irFunction.symbol).irBlock &#123;</span><br><span class="line">      <span class="keyword">if</span> (irFunction.returnType == pluginContext.irBuiltIns.unitType) &#123;</span><br><span class="line">        +costExit(pluginContext, irFunction, startTime)</span><br><span class="line">        <span class="keyword">return</span><span class="symbol">@irBlock</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">val</span> result = irTemporary(expression.value) <span class="comment">//保存返回表达式</span></span><br><span class="line">      +costExit(pluginContext, irFunction, startTime, irGet(result)) <span class="comment">// 将统计时间逻辑插到 return 之前</span></span><br><span class="line">      +expression.apply &#123;</span><br><span class="line">        value = irGet(result) <span class="comment">// 将原有的返回表达式补回</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码逻辑也比较清晰</p>
+<ol>
+<li>如果不是目标函数，直接 return</li>
+<li>如果目标函数无返回值，直接插桩 <code>costExit()</code></li>
+<li>如果有返回值，则需要先保存返回值到临时变量，然后再插桩 <code>costExit()</code>，<strong>并且要补上原有的返回值，否则会造成方法一直返回 null 的情况</strong></li>
+</ol>
+<h4 id="3-测试"><a href="#3-测试" class="headerlink" title="3. 测试"></a>3. 测试</h4><p><a target="_blank" rel="noopener" href="https://github.com/tschuchortdev/kotlin-compile-testing">https://github.com/tschuchortdev/kotlin-compile-testing</a> 此库专用于 Kotlin Compiler Plugin 或者 KSP Plugin 的单测，让我们不需要将插件集成到目标工程就能进行测试，且容易上手，推荐大家使用。</p>
+<p>但目前有个库兼容问题需要注意，<strong>我们在开发插件时必须依赖 <code>implementation(&quot;org.jetbrains.kotlin:kotlin-compiler-embeddable:1.6.21&quot;)</code>，不能使用 <code>implementation(&quot;org.jetbrains.kotlin:kotlin-compiler:1.6.21&quot;)</code></strong></p>
+<p>下面就看看如何进行测试</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MethodPerfTest</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Test</span></span><br><span class="line">  <span class="function"><span class="keyword">fun</span> `IR plugin`<span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">//    val result = compile(</span></span><br><span class="line"><span class="comment">//      sourceFile = SourceFile.fromPath(File(&quot;&#123;path&#125;/main.kt&quot;))</span></span><br><span class="line"><span class="comment">//    )</span></span><br><span class="line">    <span class="keyword">val</span> result = compile( </span><br><span class="line">      sourceFile = SourceFile.kotlin(<span class="string">&quot;main.kt&quot;</span>, <span class="string">&quot;&quot;&quot; </span></span><br><span class="line"><span class="string">        import com.zzt.demo.annotation.Cost       </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        fun main() &#123;</span></span><br><span class="line"><span class="string">          println(foo())</span></span><br><span class="line"><span class="string">          println(foo(&quot;Transform&quot;, &quot;Kotlin IR&quot;))</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        @Cost</span></span><br><span class="line"><span class="string">        fun foo(param1: String? = &quot;Hello&quot;, param2: String? = &quot;World&quot;): String &#123;</span></span><br><span class="line"><span class="string">          println(&quot;foo called param1=[<span class="subst">$&#123;<span class="string">&#x27;$&#x27;</span>&#125;</span>param1], param2=[<span class="subst">$&#123;<span class="string">&#x27;$&#x27;</span>&#125;</span>param2]&quot;) //注意 $ 需要转义</span></span><br><span class="line"><span class="string">          return param1 + param2</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &quot;&quot;&quot;</span>.trimIndent())</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)</span><br><span class="line"></span><br><span class="line">    <span class="comment">//类加载目标产物，看最终运行结果是否符合预期</span></span><br><span class="line">    <span class="keyword">val</span> ktClazz = result.classLoader.loadClass(<span class="string">&quot;MainKt&quot;</span>)</span><br><span class="line">    <span class="keyword">val</span> main = ktClazz.declaredMethods.single &#123; it.name == <span class="string">&quot;main&quot;</span> &amp;&amp; it.parameterCount == <span class="number">0</span> &#125;</span><br><span class="line">    main.invoke(<span class="literal">null</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">fun</span> <span class="title">compile</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    sourceFiles: <span class="type">List</span>&lt;<span class="type">SourceFile</span>&gt;,</span></span></span><br><span class="line"><span class="params"><span class="function">    plugin: <span class="type">ComponentRegistrar</span> = MethodPerfComponentRegistrar()</span></span>,</span><br><span class="line">  ): KotlinCompilation.Result &#123;</span><br><span class="line">    <span class="keyword">return</span> KotlinCompilation().apply &#123;</span><br><span class="line">      sources = sourceFiles</span><br><span class="line">      useIR = <span class="literal">true</span></span><br><span class="line">      compilerPlugins = listOf(plugin)</span><br><span class="line">      inheritClassPath = <span class="literal">true</span></span><br><span class="line">    &#125;.compile()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">fun</span> <span class="title">compile</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    sourceFile: <span class="type">SourceFile</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">    plugin: <span class="type">ComponentRegistrar</span> = MethodPerfComponentRegistrar()</span></span>,</span><br><span class="line">  ): KotlinCompilation.Result &#123;</span><br><span class="line">    <span class="keyword">return</span> compile(listOf(sourceFile), plugin)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>通过 <code>SourceFile.kotlin</code> 或 <code>SourceFile.fromPath()</code> 可以传入需要测试的代码</li>
+<li>测试代码会通过集成了 <code>MethodPerfComponentRegistrar</code> 的 kt 编译器进行编译</li>
+<li>通过类加载目标代码，反射调用 main 函数，看执行结果是否正确</li>
+</ol>
+<p>下面看看 Transform IR 的结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">⇢ foo(param1=Hello, param2=World) </span><br><span class="line">start function body ...</span><br><span class="line">foo called param1=[Hello], param2=[World]</span><br><span class="line">Hello, World</span><br><span class="line">end function body</span><br><span class="line"> ⇠ foo costs [1.02ms] returnValue=HelloWorld</span><br><span class="line"></span><br><span class="line">⇢ foo(param1=Transform, param2=Kotlin IR) </span><br><span class="line">start function body ...</span><br><span class="line">foo called param1=[Transform], param2=[Kotlin IR]</span><br><span class="line">Hello, World</span><br><span class="line">end function body</span><br><span class="line"> ⇠ foo costs [41.0us] returnValue=TransformKotlin IR</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://resources.jetbrains.com/storage/products/kotlinconf2018/slides/5_Writing%20Your%20First%20Kotlin%20Compiler%20Plugin.pdf">Writing Your First Kotlin Complier Plugin</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.bnorm.dev/writing-your-second-compiler-plugin-part-5">Writing Your Second Kotlin Compiler Plugin, Part 5 — Transforming Kotlin IR</a></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://zzt.github.io/2022/05/29/kt-complier-plugin/" title="【Kotlin Compiler】IR Transform Plugin 教程" target="_blank" rel="external">https://zzt.github.io/2022/05/29/kt-complier-plugin/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/androidZzT" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpeg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/androidZzT" target="_blank"><span class="text-dark">ZzT</span><small class="ml-1x">Developer</small></a></h3>
+        <div></div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2022/05/29/kt-ir/" title="【Kotlin Compiler】IR 介绍"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2022 ZzT
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>

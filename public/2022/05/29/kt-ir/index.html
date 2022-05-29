@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>【Kotlin Compiler】IR 介绍 | ZzT&#39;s Blog</title>
+  <meta name="description" content="【Kotlin Compiler】IR 介绍 本文会介绍 Kotlin Compiler 中 IR 是什么，以及操作 IR 的 api 是什么在了解 IR 相关 api 后，可以继续学习 IR Transform Plugin 教程，自己动手制作一个 Transform IR 的插件  Kotlin IR 是什么 IR 全称是 intermediate representation，表示编译过程中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Kotlin Compiler】IR 介绍">
+<meta property="og:url" content="https://zzt.github.io/2022/05/29/kt-ir/index.html">
+<meta property="og:site_name" content="ZzT&#39;s Blog">
+<meta property="og:description" content="【Kotlin Compiler】IR 介绍 本文会介绍 Kotlin Compiler 中 IR 是什么，以及操作 IR 的 api 是什么在了解 IR 相关 api 后，可以继续学习 IR Transform Plugin 教程，自己动手制作一个 Transform IR 的插件  Kotlin IR 是什么 IR 全称是 intermediate representation，表示编译过程中">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://zzt.github.io/2022/05/29/kt-ir/kotin_ir.png">
+<meta property="og:image" content="https://zzt.github.io/2022/05/29/kt-ir/visitor_1.png">
+<meta property="og:image" content="https://zzt.github.io/2022/05/29/kt-ir/visitor_2.png">
+<meta property="article:published_time" content="2022-05-29T12:37:24.000Z">
+<meta property="article:modified_time" content="2022-05-29T12:48:51.206Z">
+<meta property="article:author" content="ZzT">
+<meta property="article:tag" content="Kotlin Compiler">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zzt.github.io/2022/05/29/kt-ir/kotin_ir.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://zzt.github.io/2022/05/29/kt-ir/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="ZzT&#39;s Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/androidZzT" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpeg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">ZzT</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Developer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Peking, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BlockChain/">BlockChain</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Kotlin/">Kotlin</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Video/">Video</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin-Compiler/" rel="tag">Kotlin Compiler</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%8D%8F%E7%A8%8B/" rel="tag">Kotlin协程</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kotlin%E5%9F%BA%E7%A1%80/" rel="tag">Kotlin基础</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%AB%98%E6%95%B0/" rel="tag">高数</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">6</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/29/kt-complier-plugin/" class="title">【Kotlin Compiler】IR Transform Plugin 教程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T12:37:37.000Z" itemprop="datePublished">2022-05-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Kotlin/">Kotlin</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/29/kt-ir/" class="title">【Kotlin Compiler】IR 介绍</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T12:37:24.000Z" itemprop="datePublished">2022-05-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/03/basic-integral/" class="title">不定积分基本公式与推导</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-03T07:28:33.000Z" itemprop="datePublished">2022-05-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%80%83%E7%A0%94/">考研</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/26/linear-list/" class="title">线性表</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-26T14:35:02.000Z" itemprop="datePublished">2022-01-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Video/">Video</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/23/audio-basic/" class="title">音频开发基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-22T17:53:41.000Z" itemprop="datePublished">2022-01-23</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-kt-ir" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【Kotlin Compiler】IR 介绍
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/05/29/kt-ir/" class="article-date">
+	  <time datetime="2022-05-29T12:37:24.000Z" itemprop="datePublished">2022-05-29</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/Kotlin-Compiler/" rel="tag">Kotlin Compiler</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/05/29/kt-ir/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="【Kotlin-Compiler】IR-介绍"><a href="#【Kotlin-Compiler】IR-介绍" class="headerlink" title="【Kotlin Compiler】IR 介绍"></a>【Kotlin Compiler】IR 介绍</h2><blockquote>
+<p>本文会介绍 Kotlin Compiler 中 IR 是什么，以及操作 IR 的 api 是什么<br>在了解 IR 相关 api 后，可以继续学习 <a href="">IR Transform Plugin 教程</a>，自己动手制作一个 Transform IR 的插件</p>
+</blockquote>
+<h3 id="Kotlin-IR-是什么"><a href="#Kotlin-IR-是什么" class="headerlink" title="Kotlin IR 是什么"></a>Kotlin IR 是什么</h3><img src="/2022/05/29/kt-ir/kotin_ir.png" class="">
+<p>IR 全称是 intermediate representation，表示编译过程中的中间信息，由编译器<code>前端</code>对源码分析后得到，随后会输入到<code>后端</code>进一步编译为机器码</p>
+<p>IR 可以有一系列的表现方式，由高层表示逐渐下降(lowering)到低层</p>
+<p>我们所讨论的 Kotlin IR 是抽象语法树结构（AST），是比较高层的 IR 表示类型。</p>
+<p>有了完备的 IR，就可以利用不同的 <code>后端</code>，编出不同的目标代码，比如 <code>JVM</code> 的字节码，或者运行在 <code>iOS</code> 的机器码，这样就达到了跨端的目的，想了解更多 kotlin 跨端技术可以参考 <a target="_blank" rel="noopener" href="https://kotlinlang.org/docs/multiplatform-mobile-getting-started.html">https://kotlinlang.org/docs/multiplatform-mobile-getting-started.html</a></p>
+<h3 id="如何查看-Kotlin-IR-结构"><a href="#如何查看-Kotlin-IR-结构" class="headerlink" title="如何查看 Kotlin IR 结构"></a>如何查看 Kotlin IR 结构</h3><h4 id="IR-树示例"><a href="#IR-树示例" class="headerlink" title="IR 树示例"></a>IR 树示例</h4><p>我们先看一个例子，直观感受一下 IR 树是什么样子的</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  println(<span class="string">&quot;Hello, World!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码在转成 IR 信息后，是这样的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">MODULE_FRAGMENT name:&lt;main&gt;</span><br><span class="line">  FILE fqName:&lt;root&gt; fileName:/var/folders/lt/k622ndqs14l7_tcxst93z3cm0000gp/T/Kotlin-Compilation7335327567848552666/sources/main.kt</span><br><span class="line">    FUN name:main visibility:public modality:FINAL &lt;&gt; () returnType:kotlin.Unit</span><br><span class="line">      BLOCK_BODY</span><br><span class="line">        CALL &#x27;public final fun println (message: kotlin.Any?): kotlin.Unit [inline] declared in kotlin.io.ConsoleKt&#x27; type=kotlin.Unit origin=null</span><br><span class="line">          message: CONST String type=kotlin.String value=&quot;Hello, World!&quot;</span><br></pre></td></tr></table></figure>
+<h4 id="IrElement-和-IrElementVisitor"><a href="#IrElement-和-IrElementVisitor" class="headerlink" title="IrElement 和 IrElementVisitor"></a>IrElement 和 IrElementVisitor</h4><img src="/2022/05/29/kt-ir/visitor_1.png" class="">
+<p>查看 IR 的 Api 中，最重要的是 <code>IrElement</code> 和 <code>IrElementVisitor</code></p>
+<p><code>IrElement</code> 是所有 IR 元素的父类，包含两个抽象方法<br><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="type">&lt;R, D&gt;</span> <span class="title">accept</span><span class="params">(visitor: <span class="type">IrElementVisitor</span>&lt;<span class="type">R</span>, D&gt;, <span class="keyword">data</span>: <span class="type">D</span>)</span></span>: R</span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="type">&lt;D&gt;</span> <span class="title">acceptChildren</span><span class="params">(visitor: <span class="type">IrElementVisitor</span>&lt;<span class="type">Unit</span>, D&gt;, <span class="keyword">data</span>: <span class="type">D</span>)</span></span>: <span class="built_in">Unit</span></span><br></pre></td></tr></table></figure><br>accept 一般会调用 visitor 对应的 visitXXX 方法<br>acceptChildren 会依次调用 IR 子元素的 accept 方法</p>
+<p>下面看看 <code>IrClass</code> 的具体实现，便于我们理解<br><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;R, D&gt;</span> <span class="title">accept</span><span class="params">(visitor: <span class="type">IrElementVisitor</span>&lt;<span class="type">R</span>, D&gt;, <span class="keyword">data</span>: <span class="type">D</span>)</span></span>: R =</span><br><span class="line">    visitor.visitClass(<span class="keyword">this</span>, <span class="keyword">data</span>) <span class="comment">// 调用 visitor 对应的 visitClass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;D&gt;</span> <span class="title">acceptChildren</span><span class="params">(visitor: <span class="type">IrElementVisitor</span>&lt;<span class="type">Unit</span>, D&gt;, <span class="keyword">data</span>: <span class="type">D</span>)</span></span> &#123; <span class="comment">// 遍历 IrClass 子元素，并调用对应的 accept 方法</span></span><br><span class="line">    thisReceiver?.accept(visitor, <span class="keyword">data</span>)</span><br><span class="line">    typeParameters.forEach &#123; it.accept(visitor, <span class="keyword">data</span>) &#125;</span><br><span class="line">    declarations.forEach &#123; it.accept(visitor, <span class="keyword">data</span>) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h5 id="输入和输出"><a href="#输入和输出" class="headerlink" title=" 输入和输出"></a><D,R> 输入和输出</h5><p>我们注意到 Visitor 中还包含了 <code>&lt;R, D&gt;</code> 两个泛型参数，D 作为参数传入，R 作为返回值，这分别代表什么意思呢？</p>
+<p><code>D data</code> 表示在 visit ir 时的输入数据，我们可以把想要传递的上下文信息通过这个参数传入，在具体 visit 的过程中使用。</p>
+<p>比如，我们可以修改打印 IR 元素前的缩进，或是随便插入什么其他信息都可以<br><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StringIndentVisitor</span> : <span class="type">IrElementVisitor</span>&lt;<span class="type">Unit, String</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">visitElement</span><span class="params">(element: <span class="type">IrElement</span>, <span class="keyword">data</span>: <span class="type">String</span>)</span></span> &#123;</span><br><span class="line">    println(<span class="string">&quot;<span class="variable">$data</span><span class="subst">$&#123;render(element)&#125;</span> &#123;&quot;</span>)</span><br><span class="line">    element.acceptChildren(<span class="keyword">this</span>, <span class="string">&quot;  <span class="variable">$data</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">&quot;<span class="variable">$data</span>&#125;&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>R</code> 表示在 accept visitor 时拿到的返回结果，在较少的 Transform ir 场景我们会用到这个能力，其他情况使用 Unit 即可。下面有个真实场景不会用到的例子，但能说明返回值的用法。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Not as efficient as a while loop, but exemplifies how the output type could be used</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RootParentVisitor</span> : <span class="type">IrElementVisitor</span>&lt;<span class="type">IrDeclarationParent?, Nothing?</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">visitElement</span><span class="params">(element: <span class="type">IrElement</span>, <span class="keyword">data</span>: <span class="type">Nothing</span>?)</span></span>: IrDeclarationParent? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">visitDeclaration</span><span class="params">(declaration: <span class="type">IrDeclarationBase</span>, <span class="keyword">data</span>: <span class="type">Nothing</span>?)</span></span>: IrDeclarationParent &#123;</span><br><span class="line">    <span class="keyword">val</span> parent = declaration.parent</span><br><span class="line">    <span class="keyword">return</span> parent.accept(<span class="keyword">this</span>, <span class="literal">null</span>) ?: parent</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另外。我们可以注意到 <code>acceptChildren</code> 接收的 visitor 泛型是 <D, Unit> ，也就是说我们不能在通过 acceptChildren 遍历 IR 树的过程中获取返回值，如果你需要在过程中保存一些信息，可以从外部传入一个变量保存。比如</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CollectingVisitor</span></span>(</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">val</span> elements: MutableList&lt;IrElement&gt;</span><br><span class="line">) : IrElementVisitor&lt;<span class="built_in">Unit</span>, <span class="built_in">Nothing</span>?&gt; &#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">visitElement</span><span class="params">(element: <span class="type">IrElement</span>, <span class="keyword">data</span>: <span class="type">Nothing</span>?)</span></span> &#123;</span><br><span class="line">    elements.add(element)</span><br><span class="line">    element.acceptChildren(<span class="keyword">this</span>, <span class="keyword">data</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">collect</span><span class="params">(element: <span class="type">IrElement</span>)</span></span> = buildList&lt;IrElement&gt; &#123;</span><br><span class="line">  element.accept(CollectingVisitor(<span class="keyword">this</span>), <span class="literal">null</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id=""><a href="#" class="headerlink" title=" "></a> </h5><h3 id="自顶向下遍历-IR-树"><a href="#自顶向下遍历-IR-树" class="headerlink" title="自顶向下遍历 IR 树"></a>自顶向下遍历 IR 树</h3><img src="/2022/05/29/kt-ir/visitor_2.png" class="">
+<p>了解了 IrElement 和 IrElementVisitor 后，我们可以自己实现一个类似 <code>IrElement.dump()</code> 的功能。通过重写 visitElement，在其中进行 acceptChildren，就能自顶向下递归遍历 IR 树，通过 <code>element.render()</code> 打印每个 IR 元素，代码如下</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RecursiveVisitor</span>: <span class="type">IrElementVisitor</span>&lt;<span class="type">Unit, Nothing?</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">visitElement</span><span class="params">(element: <span class="type">IrElement</span>, <span class="keyword">data</span>: <span class="type">Nothing</span>?)</span></span> &#123;</span><br><span class="line">    println(<span class="string">&quot;visitElement:: <span class="subst">$&#123;element.render()&#125;</span>&quot;</span>)</span><br><span class="line">    element.acceptChildren(<span class="keyword">this</span>, <span class="keyword">data</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="其他-IR-操作-API"><a href="#其他-IR-操作-API" class="headerlink" title="其他 IR 操作 API"></a>其他 IR 操作 API</h3><h4 id="创建方法调用-IR"><a href="#创建方法调用-IR" class="headerlink" title="创建方法调用 IR"></a>创建方法调用 IR</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 通过传入方法全限定名找到具体方法 ir，除了方法还有找 class 等 api</span></span><br><span class="line"><span class="keyword">val</span> printlnFunc = irPluginContext.referenceFunctions(FqName(<span class="string">&quot;kotlin.io.println&quot;</span>)).single &#123;</span><br><span class="line">  <span class="keyword">val</span> parameters = it.owner.valueParameters</span><br><span class="line">  parameters.size == <span class="number">1</span> &amp;&amp; parameters[<span class="number">0</span>].type == irPluginContext.irBuiltIns.anyNType</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//通过传入 IrFunction 到 irCall 完成方法的调用，其中 putValueArgument 可以向目标函数传入参数</span></span><br><span class="line">irCall(printlnFunc).also &#123;</span><br><span class="line">     it.putValueArgument(<span class="number">0</span>, irString(<span class="string">&quot;Hello, World&quot;</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="拼接字符串"><a href="#拼接字符串" class="headerlink" title="拼接字符串"></a>拼接字符串</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> concat = irConcat() </span><br><span class="line">concat.addArgument(irString(<span class="string">&quot;a&quot;</span>)) </span><br><span class="line">concat.addArgument(irString(<span class="string">&quot;b&quot;</span>))</span><br></pre></td></tr></table></figure>
+<h4 id="创建局部变量-IR，获取变量值"><a href="#创建局部变量-IR，获取变量值" class="headerlink" title="创建局部变量 IR，获取变量值"></a>创建局部变量 IR，获取变量值</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> i = irTemporary(irConcat().also &#123; <span class="comment">// i = &quot;Hello, World&quot;</span></span><br><span class="line">       it.addArgument(irString(<span class="string">&quot;Hello, World&quot;</span>))</span><br><span class="line">     &#125;)</span><br><span class="line"></span><br><span class="line">irGet(i) <span class="comment">// 得到 i 的值 &quot;Hello, World&quot;</span></span><br></pre></td></tr></table></figure>
+<h4 id="修改方法体"><a href="#修改方法体" class="headerlink" title="修改方法体"></a>修改方法体</h4><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DeclarationIrBuilder(irPluginContext, irFunction.symbol).irBlockBody &#123;</span><br><span class="line">    +irCall(...) <span class="comment">// 可通过加号 插入自己的方法调用</span></span><br><span class="line">    <span class="keyword">for</span>(statement <span class="keyword">in</span> irBody.statements) &#123; <span class="comment">//原有方法体中的表达式</span></span><br><span class="line">          +statement</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="持续补充…"><a href="#持续补充…" class="headerlink" title="持续补充…"></a>持续补充…</h4><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://blog.bnorm.dev/writing-your-second-compiler-plugin-part-2">Writing Your Second Kotlin Compiler Plugin, Part 2 — Inspecting Kotlin IR</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.bnorm.dev/writing-your-second-compiler-plugin-part-3">Writing Your Second Kotlin Compiler Plugin, Part 3 — Navigating Kotlin IR</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://zzt.github.io/2022/05/29/kt-ir/" title="【Kotlin Compiler】IR 介绍" target="_blank" rel="external">https://zzt.github.io/2022/05/29/kt-ir/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/androidZzT" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpeg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/androidZzT" target="_blank"><span class="text-dark">ZzT</span><small class="ml-1x">Developer</small></a></h3>
+        <div></div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/05/29/kt-complier-plugin/" title="【Kotlin Compiler】IR Transform Plugin 教程"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/05/03/basic-integral/" title="不定积分基本公式与推导"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>Maybe you could buy me a cup of coffee.</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open alipay app scan this qrcode, buy me a coffee!</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpay.JPG" alt="Scan Qrcode" title="Scan" />
+              </div>
+              <p class="text-muted mv">Scan this qrcode</p>
+              <p class="text-grey">Open wechat app scan this qrcode, buy me a coffee!</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> alipay</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> wechat payment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/androidZzT" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/zzt-33-49" target="_blank" title="Zhihu" data-toggle=tooltip data-placement=top><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="https://juejin.cn/user/2471357868151374" target="_blank" title="Juejin" data-toggle=tooltip data-placement=top><i class="icon icon-juejin"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2022 ZzT
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+
+
+
+
+
+
+</body>
+</html>
