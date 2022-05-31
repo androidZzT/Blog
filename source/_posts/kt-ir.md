@@ -9,7 +9,7 @@ tags: Kotlin Compiler
 ---
 
 > 本文会介绍 Kotlin Compiler 中 IR 是什么，以及操作 IR 的 api 是什么
-> 在了解 IR 相关 api 后，可以继续学习 [IR Transform Plugin 教程]()，自己动手制作一个 Transform IR 的插件
+> 在了解 IR 相关 api 后，可以继续学习 [IR Transform Plugin 教程](https://androidzzt.github.io/2022/05/29/kt-complier-plugin/)，自己动手制作一个 Transform IR 的插件
 
 ### Kotlin IR 是什么
 

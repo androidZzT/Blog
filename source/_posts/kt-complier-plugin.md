@@ -8,7 +8,7 @@ tags: Kotlin Compiler
 【Kotlin Compiler】IR Transform Plugin 教程
 ---
 
-> * 本文会通过一个小 demo 手把手教你学会如何利用 Kotlin Compiler Plugin 进行 IR 插桩。如果你对 IR（intermediate representation） 是什么还一知半解，不妨先参考 [【Kotlin Compiler】IR 介绍]()
+> * 本文会通过一个小 demo 手把手教你学会如何利用 Kotlin Compiler Plugin 进行 IR 插桩。如果你对 IR（intermediate representation） 是什么还一知半解，不妨先参考 [【Kotlin Compiler】IR 介绍](https://androidzzt.github.io/2022/05/29/kt-ir/)
 > * 如果你想直接参考源码，可以直接看[这里](https://github.com/androidZzT/KtIRTransformSample)，如果能点个 star 就更好了
 
 下面开始正题
