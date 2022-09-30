@@ -109,5 +109,5 @@ theme: pure
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://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@github.com/androidZzT/androidZzT.github.io.git
+  repo: git@github.com:androidZzT/androidZzT.github.io.git
   branch: master
